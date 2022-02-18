@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { Audio } from "expo-av";
 import { store } from "../../firebase";
+// import Sound from "react-native-sound";
 
 export default function RecordScreen() {
   const [recording, setRecording] = React.useState();
@@ -96,9 +97,29 @@ export default function RecordScreen() {
       .catch((e) => console.log("uploading image error =>", e));
   };
 
+  /*const getRecording = async () => {
+    store
+      .ref("audiofile.m4a")
+      .getDownloadURL()
+      .then(function(url) {
+        console.log(url);
+        const track = new Sound(url, null, (e) => {
+          if (e) {
+            console.log('error loading track:', e)
+          } else {
+            track.play()
+          }
+        });
+      });
+  }*/
+
   return (
     <View style={styles.container}>
       <Text>{message}</Text>
+      {/* <Button
+        title="Get Recording"
+        onPress={getRecording}
+      /> */}
       <Button
         title={recording ? "Stop Recording" : "Start Recording"}
         onPress={recording ? stopRecording : startRecording}
