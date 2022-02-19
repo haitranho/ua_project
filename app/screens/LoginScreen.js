@@ -8,6 +8,7 @@ import {
   TextInput,
   TouchableOpacity,
   Touchable,
+  Image,
 } from "react-native";
 import { auth } from "../../firebase";
 import { useNavigation } from "@react-navigation/core";
@@ -46,16 +47,20 @@ const LoginScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.welcome}>Login To Modio</Text>
+      <Image source={require("../../assets/new_modio_logo.png")}
+      style={{width: 100, height: 100, marginBottom: 110, marginTop: 110}}/>
+      {/* <Text style={styles.welcome}>Login To Modio</Text> */}
       <TextInput
         style={styles.input}
         label="Username"
+        placeholder="Username or Email"
         value={email}
         onChangeText={setEmail}
       />
       <TextInput
         style={styles.input}
         label="Password"
+        placeholder="Password"
         value={password}
         onChangeText={setPassword}
       />
@@ -68,7 +73,7 @@ const LoginScreen = () => {
         <TouchableOpacity style={styles.userBtn}>
           {/* Doesn't do anything right now */}
           {/* Need to implement the sign up page for this button to work */}
-          <Text style={styles.btnText}>Signup</Text>
+          <Text style={styles.btnText}>Sign Up</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -78,31 +83,33 @@ const LoginScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "teal",
+    backgroundColor: "white",
     alignItems: "center",
-    justifyContent: "center",
+    //justifyContent: "center",
   },
   welcome: {
     fontSize: 30,
     textAlign: "center",
-    color: "#fff",
+    color: "black",
     margin: 10,
   },
   input: {
     width: "90%",
-    backgroundColor: "#fff",
+    backgroundColor: "lightgrey",
     padding: 15,
     marginBottom: 10,
+    borderRadius: 10,
   },
   btnContainer: {
     flexDirection: "row",
-    justifyContent: "space-between",
-    width: "90%",
+    justifyContent: "space-around",
+    width: "95%",
   },
   userBtn: {
-    backgroundColor: "orange",
+    backgroundColor: "#409e39",
     padding: 15,
     width: "45%",
+    borderRadius: 10,
   },
   btnText: {
     fontSize: 18,
