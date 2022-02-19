@@ -1,3 +1,4 @@
+
 {
   "name": "modio",
   "version": "1.0.0",
@@ -12,27 +13,16 @@
   "dependencies": {
     "@react-navigation/native": "^6.0.8",
     "@react-navigation/native-stack": "^6.5.0",
-<<<<<<< HEAD
-    "expo": "^44.0.0",
-    "expo-av": "~10.2.0",
-    "expo-status-bar": "~1.2.0",
-    "firebase": "^9.6.7",
-    "pitch-shift": "^0.0.0",
-=======
     "expo": "~44.0.0",
     "expo-av": "~10.2.0",
     "expo-status-bar": "~1.2.0",
     "firebase": "^9.6.7",
->>>>>>> 5236dd2d894cbc17a38d90ad5f0bc2989a552159
     "react": "17.0.1",
     "react-dom": "17.0.1",
     "react-native": "0.64.3",
     "react-native-safe-area-context": "3.3.2",
     "react-native-screens": "~3.10.1",
-<<<<<<< HEAD
-=======
     "react-native-sound": "^0.11.2",
->>>>>>> 5236dd2d894cbc17a38d90ad5f0bc2989a552159
     "react-native-web": "0.17.1"
   },
   "devDependencies": {
