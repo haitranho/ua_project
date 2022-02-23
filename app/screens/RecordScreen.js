@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { Button, StyleSheet, Text, View } from "react-native";
 import { Audio } from "expo-av";
 import { store } from "../../firebase";
-// import Sound from "react-native-sound";
+//import Sound from "react-native-sound";
 
 export default function RecordScreen() {
   const [recording, setRecording] = React.useState();
@@ -97,29 +97,33 @@ export default function RecordScreen() {
       .catch((e) => console.log("uploading image error =>", e));
   };
 
-  /*const getRecording = async () => {
-    store
-      .ref("audiofile.m4a")
+  const getRecording = async () => {
+    store // Gets file from firebase
+      .ref("bop.wav")
       .getDownloadURL()
-      .then(function(url) {
+      .then( async function(url) {
         console.log(url);
-        const track = new Sound(url, null, (e) => {
-          if (e) {
-            console.log('error loading track:', e)
-          } else {
-            track.play()
-          }
-        });
+        const sound = new Audio.Sound;
+        try {
+          await Audio.setAudioModeAsync({playsInSilentModeIOS: true, allowsRecordingIOS: false}); // Sets up phone to play properly
+          const load_status = await sound.loadAsync({uri: url}, {}, true); // Downloads url taken from firebase
+          console.log(load_status);
+          const status = await sound.playAsync(); // 
+          console.log(status);
+          //await sound.unloadAsync();
+        } catch (error) {
+          console.log(error);
+        }
       });
-  }*/
+  }
 
   return (
     <View style={styles.container}>
       <Text>{message}</Text>
-      {/* <Button
+      <Button
         title="Get Recording"
         onPress={getRecording}
-      /> */}
+      />
       <Button
         title={recording ? "Stop Recording" : "Start Recording"}
         onPress={recording ? stopRecording : startRecording}
