@@ -11,6 +11,11 @@ export default function RecordScreen() {
   const [message, setMessage] = React.useState("");
   const [uri, setURI] = useState("");
 
+  // For testing the communication from frontend to backend
+  // Might need to rework this cause its sloppy
+  const [url1, setURL1] = useState("");
+  const [url2, setURL2] = useState("");
+
   async function startRecording() {
     try {
       const permission = await Audio.requestPermissionsAsync();
@@ -101,33 +106,62 @@ export default function RecordScreen() {
     store // Gets file from firebase
       .ref("bop.wav")
       .getDownloadURL()
-      .then( async function(url) {
+      .then(async function (url) {
         console.log(url);
-        const sound = new Audio.Sound;
+        const sound = new Audio.Sound();
         try {
-          await Audio.setAudioModeAsync({playsInSilentModeIOS: true, allowsRecordingIOS: false}); // Sets up phone to play properly
-          const load_status = await sound.loadAsync({uri: url}, {}, true); // Downloads url taken from firebase
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            allowsRecordingIOS: false,
+          }); // Sets up phone to play properly
+          const load_status = await sound.loadAsync({ uri: url }, {}, true); // Downloads url taken from firebase
           console.log(load_status);
-          const status = await sound.playAsync(); // 
+          const status = await sound.playAsync(); //
           console.log(status);
           //await sound.unloadAsync();
         } catch (error) {
           console.log(error);
         }
       });
-  }
+  };
+
+  /** 
+   *  This is a test function for the people working on communicating from the frontend to backend
+   *  It will grab the URLs of the two files we are trying to overlap from Firebase
+   *  The current goal is to transfer this over to the Python backend so it can pull the files
+   *  and then merge it
+   */
+  const getURL = async () => {
+
+    // Some hard coded URL's from the hardcoded audio files in Firebase storage
+    store 
+      .ref("instrumental.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL1(url);
+      });
+    store 
+      .ref("voice.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL2(url);
+      });
+
+    // Do whatever you need to do with the two URLs.
+    console.log(url1);
+    console.log(url2);
+  };
 
   return (
     <View style={styles.container}>
       <Text>{message}</Text>
-      <Button
-        title="Get Recording"
-        onPress={getRecording}
-      />
+      <Button title="Get Recording" onPress={getRecording} />
+      <Button title="Send 2 URL's to backend" onPress={getURL} />
       <Button
         title={recording ? "Stop Recording" : "Start Recording"}
         onPress={recording ? stopRecording : startRecording}
       />
+
       {getRecordingLines()}
       <StatusBar style="auto" />
     </View>
