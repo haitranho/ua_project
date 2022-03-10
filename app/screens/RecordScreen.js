@@ -26,9 +26,31 @@ export default function RecordScreen() {
           playsInSilentModeIOS: true,
         });
 
-        const { recording } = await Audio.Recording.createAsync(
-          Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-        );
+        const recording = new Audio.Recording();
+        await recording.prepareToRecordAsync({
+              isMeteringEnabled: true,
+              android: {
+                extension: '.m4a',
+                outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_THREE_GPP,
+                audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AMR_NB,
+                sampleRate: 44100,
+                numberOfChannels: 2,
+                bitRate: 128000,
+              },
+              ios: {
+                extension: '.wav',
+                audioFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_LINEARPCM,
+                audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
+                sampleRate: 44100,
+                numberOfChannels: 2,
+                bitRate: 176400,
+                linearPCMBitDepth: 16,
+                linearPCMIsBigEndian: false,
+                linearPCMIsFloat: false,
+              },
+            });
+        recording.setOnRecordingStatusUpdate();
+        await recording.startAsync();
 
         setRecording(recording);
       } else {
@@ -93,7 +115,7 @@ export default function RecordScreen() {
     /* Save the audio recording into Storage and using the recording's uri */
     store
       .ref()
-      .child("audiofile.m4a")
+      .child("test.wav")
       .put(blob)
       .then(() => {
         console.log("Succesfully saved");
