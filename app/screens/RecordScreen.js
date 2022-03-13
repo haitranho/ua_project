@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View, Image, TouchableOpacity, TextInput} from "react-native";
 import { Audio } from "expo-av";
 import { store } from "../../firebase";
 //import Sound from "react-native-sound";
@@ -168,6 +168,30 @@ export default function RecordScreen() {
       .then(async function (url) {
         setURL2(url);
       });
+      });
+  };
+
+  /** 
+   *  This is a test function for the people working on communicating from the frontend to backend
+   *  It will grab the URLs of the two files we are trying to overlap from Firebase
+   *  The current goal is to transfer this over to the Python backend so it can pull the files
+   *  and then merge it
+   */
+  const getURL = async () => {
+
+    // Some hard coded URL's from the hardcoded audio files in Firebase storage
+    store 
+      .ref("instrumental.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL1(url);
+      });
+    store 
+      .ref("voice.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL2(url);
+      });
 
     // Do whatever you need to do with the two URLs.
     console.log(url1);
@@ -177,13 +201,22 @@ export default function RecordScreen() {
   return (
     <View style={styles.container}>
       <Text>{message}</Text>
+      <TouchableOpacity
+        onPress={recording ? stopRecording : startRecording}
+      >
+        <Image source={recording ? require("../../assets/recordingmic.png") : require("../../assets/startrecordingmic.png")}
+        style={{width: 120, height: 200, marginTop: -170, marginLeft: 20, position: "relative"}}/>
+        <Image source={recording ? require("../../assets/stopbutton.png") : require("../../assets/recordbutton.png")}
+        style={{width: 50, height: 60, marginBottom: 50, marginTop: 30, marginLeft: 55, position: "relative"}}/>
+      </TouchableOpacity>
+      <Button title="Get Recording" onPress={getRecording} />
+      <Button title="Send 2 URL's to backend" onPress={getURL} />
       <Button title="Get Recording" onPress={getRecording} />
       <Button title="Send 2 URL's to backend" onPress={getURL} />
       <Button
         title={recording ? "Stop Recording" : "Start Recording"}
         onPress={recording ? stopRecording : startRecording}
       />
-
       {getRecordingLines()}
       <StatusBar style="auto" />
     </View>
@@ -193,7 +226,7 @@ export default function RecordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#1B1C22",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -205,6 +238,9 @@ const styles = StyleSheet.create({
   fill: {
     flex: 1,
     margin: 16,
+    color: "#DEE1E9",
+    backgroundColor: "#25262C",
+    padding: 10,
   },
   button: {
     margin: 16,
