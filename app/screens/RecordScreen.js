@@ -1,15 +1,20 @@
 import { StatusBar } from "expo-status-bar";
 import React, { useState } from "react";
-import { Button, StyleSheet, Text, View } from "react-native";
+import { Button, StyleSheet, Text, View, Image, TouchableOpacity, TextInput} from "react-native";
 import { Audio } from "expo-av";
 import { store } from "../../firebase";
-// import Sound from "react-native-sound";
+//import Sound from "react-native-sound";
 
 export default function RecordScreen() {
   const [recording, setRecording] = React.useState();
   const [recordings, setRecordings] = React.useState([]);
   const [message, setMessage] = React.useState("");
   const [uri, setURI] = useState("");
+
+  // For testing the communication from frontend to backend
+  // Might need to rework this cause its sloppy
+  const [url1, setURL1] = useState("");
+  const [url2, setURL2] = useState("");
 
   async function startRecording() {
     try {
@@ -21,9 +26,31 @@ export default function RecordScreen() {
           playsInSilentModeIOS: true,
         });
 
-        const { recording } = await Audio.Recording.createAsync(
-          Audio.RECORDING_OPTIONS_PRESET_HIGH_QUALITY
-        );
+        const recording = new Audio.Recording();
+        await recording.prepareToRecordAsync({
+              isMeteringEnabled: true,
+              android: {
+                extension: '.m4a',
+                outputFormat: Audio.RECORDING_OPTION_ANDROID_OUTPUT_FORMAT_THREE_GPP,
+                audioEncoder: Audio.RECORDING_OPTION_ANDROID_AUDIO_ENCODER_AMR_NB,
+                sampleRate: 44100,
+                numberOfChannels: 2,
+                bitRate: 128000,
+              },
+              ios: {
+                extension: '.wav',
+                audioFormat: Audio.RECORDING_OPTION_IOS_OUTPUT_FORMAT_LINEARPCM,
+                audioQuality: Audio.RECORDING_OPTION_IOS_AUDIO_QUALITY_MAX,
+                sampleRate: 44100,
+                numberOfChannels: 2,
+                bitRate: 176400,
+                linearPCMBitDepth: 16,
+                linearPCMIsBigEndian: false,
+                linearPCMIsFloat: false,
+              },
+            });
+        recording.setOnRecordingStatusUpdate();
+        await recording.startAsync();
 
         setRecording(recording);
       } else {
@@ -88,7 +115,7 @@ export default function RecordScreen() {
     /* Save the audio recording into Storage and using the recording's uri */
     store
       .ref()
-      .child("audiofile.m4a")
+      .child("test.wav")
       .put(blob)
       .then(() => {
         console.log("Succesfully saved");
@@ -97,33 +124,69 @@ export default function RecordScreen() {
       .catch((e) => console.log("uploading image error =>", e));
   };
 
-  /*const getRecording = async () => {
-    store
-      .ref("audiofile.m4a")
+  const getRecording = async () => {
+    store // Gets file from firebase
+      .ref("bop.wav")
       .getDownloadURL()
-      .then(function(url) {
+      .then(async function (url) {
         console.log(url);
-        const track = new Sound(url, null, (e) => {
-          if (e) {
-            console.log('error loading track:', e)
-          } else {
-            track.play()
-          }
-        });
+        const sound = new Audio.Sound();
+        try {
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            allowsRecordingIOS: false,
+          }); // Sets up phone to play properly
+          const load_status = await sound.loadAsync({ uri: url }, {}, true); // Downloads url taken from firebase
+          console.log(load_status);
+          const status = await sound.playAsync(); //
+          console.log(status);
+          //await sound.unloadAsync();
+        } catch (error) {
+          console.log(error);
+        }
       });
-  }*/
+  };
+
+  /** 
+   *  This is a test function for the people working on communicating from the frontend to backend
+   *  It will grab the URLs of the two files we are trying to overlap from Firebase
+   *  The current goal is to transfer this over to the Python backend so it can pull the files
+   *  and then merge it
+   */
+  const getURL = async () => {
+
+    // Some hard coded URL's from the hardcoded audio files in Firebase storage
+    store 
+      .ref("instrumental.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL1(url);
+      });
+    store 
+      .ref("voice.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL2(url);
+      });
+
+    // Do whatever you need to do with the two URLs.
+    console.log(url1);
+    console.log(url2);
+  };
 
   return (
     <View style={styles.container}>
       <Text>{message}</Text>
-      {/* <Button
-        title="Get Recording"
-        onPress={getRecording}
-      /> */}
-      <Button
-        title={recording ? "Stop Recording" : "Start Recording"}
+      <TouchableOpacity
         onPress={recording ? stopRecording : startRecording}
-      />
+      >
+        <Image source={recording ? require("../../assets/recordingmic.png") : require("../../assets/startrecordingmic.png")}
+        style={{width: 120, height: 200, marginTop: -170, marginLeft: 20, position: "relative"}}/>
+        <Image source={recording ? require("../../assets/stopbutton.png") : require("../../assets/recordbutton.png")}
+        style={{width: 50, height: 60, marginBottom: 50, marginTop: 30, marginLeft: 55, position: "relative"}}/>
+      </TouchableOpacity>
+      <Button title="Get Recording" onPress={getRecording} />
+      <Button title="Send 2 URL's to backend" onPress={getURL} />
       {getRecordingLines()}
       <StatusBar style="auto" />
     </View>
@@ -133,7 +196,7 @@ export default function RecordScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#fff",
+    backgroundColor: "#1B1C22",
     alignItems: "center",
     justifyContent: "center",
   },
@@ -145,6 +208,9 @@ const styles = StyleSheet.create({
   fill: {
     flex: 1,
     margin: 16,
+    color: "#DEE1E9",
+    backgroundColor: "#25262C",
+    padding: 10,
   },
   button: {
     margin: 16,
