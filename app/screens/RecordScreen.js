@@ -168,6 +168,30 @@ export default function RecordScreen() {
       .then(async function (url) {
         setURL2(url);
       });
+      });
+  };
+
+  /** 
+   *  This is a test function for the people working on communicating from the frontend to backend
+   *  It will grab the URLs of the two files we are trying to overlap from Firebase
+   *  The current goal is to transfer this over to the Python backend so it can pull the files
+   *  and then merge it
+   */
+  const getURL = async () => {
+
+    // Some hard coded URL's from the hardcoded audio files in Firebase storage
+    store 
+      .ref("instrumental.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL1(url);
+      });
+    store 
+      .ref("voice.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setURL2(url);
+      });
 
     // Do whatever you need to do with the two URLs.
     console.log(url1);
@@ -187,6 +211,12 @@ export default function RecordScreen() {
       </TouchableOpacity>
       <Button title="Get Recording" onPress={getRecording} />
       <Button title="Send 2 URL's to backend" onPress={getURL} />
+      <Button title="Get Recording" onPress={getRecording} />
+      <Button title="Send 2 URL's to backend" onPress={getURL} />
+      <Button
+        title={recording ? "Stop Recording" : "Start Recording"}
+        onPress={recording ? stopRecording : startRecording}
+      />
       {getRecordingLines()}
       <StatusBar style="auto" />
     </View>
