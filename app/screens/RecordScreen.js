@@ -149,7 +149,7 @@ export default function RecordScreen() {
 
   const getRecording = async () => {
     store // Gets file from firebase
-      .ref("bop.wav")
+      .ref("test.wav")
       .getDownloadURL()
       .then(async function (url) {
         console.log(url);
@@ -232,12 +232,6 @@ export default function RecordScreen() {
       </TouchableOpacity>
       <Button title="Get Recording" onPress={getRecording} />
       <Button title="Send 2 URL's to backend" onPress={getURL} />
-      <Button title="Get Recording" onPress={getRecording} />
-      <Button title="Send 2 URL's to backend" onPress={getURL} />
-      <Button
-        title={recording ? "Stop Recording" : "Start Recording"}
-        onPress={recording ? stopRecording : startRecording}
-      />
       {getRecordingLines()}
       <StatusBar style="auto" />
     </View>
