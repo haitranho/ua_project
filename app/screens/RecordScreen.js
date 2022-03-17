@@ -14,8 +14,11 @@ import { store } from "../../firebase";
 //import Sound from "react-native-sound";
 
 export default function RecordScreen() {
+  // Holds current recording
   const [recording, setRecording] = React.useState();
+  // Holds past recordings
   const [recordings, setRecordings] = React.useState([]);
+  // Error message
   const [message, setMessage] = React.useState("");
   const [uri, setURI] = useState("");
 
@@ -23,12 +26,15 @@ export default function RecordScreen() {
   // Might need to rework this cause its sloppy
   const [url1, setURL1] = useState("");
   const [url2, setURL2] = useState("");
-
+  
+  // Start recording function
   async function startRecording() {
     try {
+      // Request access to mic
       const permission = await Audio.requestPermissionsAsync();
-
+      // Access to mic
       if (permission.status === "granted") {
+        // Allow recording
         await Audio.setAudioModeAsync({
           allowsRecordingIOS: true,
           playsInSilentModeIOS: true,
@@ -65,16 +71,21 @@ export default function RecordScreen() {
       } else {
         setMessage("Please grant permission to app to access microphone");
       }
+      // Denied access
     } catch (err) {
       console.error("Failed to start recording", err);
     }
   }
 
+  // Stop recording function
   async function stopRecording() {
     setRecording(undefined);
+    // Stops the recording and from memory
     await recording.stopAndUnloadAsync();
-
+    
+    // Get existing recordings
     let updatedRecordings = [...recordings];
+    // New Sound object to play back the recording and status of the Sound object
     const { sound, status } = await recording.createNewLoadedSoundAsync();
     updatedRecordings.push({
       sound: sound,
@@ -83,10 +94,12 @@ export default function RecordScreen() {
     });
 
     setURI(recording.getURI());
+    // Add array of recordings
     setRecordings(updatedRecordings);
     console.log(recording.getURI());
   }
 
+  // Duration of the recording
   function getDurationFormatted(millis) {
     const minutes = millis / 1000 / 60;
     const minutesDisplay = Math.floor(minutes);
@@ -95,6 +108,7 @@ export default function RecordScreen() {
     return `${minutesDisplay}:${secondsDisplay}`;
   }
 
+  // Get recording lines and have them displayed
   function getRecordingLines() {
     return recordings.map((recordingLine, index) => {
       return (
