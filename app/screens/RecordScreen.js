@@ -26,6 +26,9 @@ export default function RecordScreen() {
   // Might need to rework this cause its sloppy
   const [url1, setURL1] = useState("");
   const [url2, setURL2] = useState("");
+
+  // have a local audio upload
+  const [audio, setAudio] = useState();
   
   // Start recording function
   async function startRecording() {
@@ -196,6 +199,17 @@ export default function RecordScreen() {
     console.log(url2);
   };
 
+  // implementing uploading audio 
+  const upload = () => {
+    if (audio == null) {
+      return;
+    }
+    store
+      .ref(`/Musical_Treasures/${audio.name}`)
+      .put(audio)
+      .on("state_changed", alert("success! "), alert);
+  }
+
   return (
     <View style={styles.container}>
       <Text>{message}</Text>
@@ -239,6 +253,8 @@ export default function RecordScreen() {
         onPress={recording ? stopRecording : startRecording}
       />
       {getRecordingLines()}
+      <input type = "file" onChange={(e)=>{setAudio(e.target.files[0])}} />
+      <Button title="Upload" onPress={upload}/>
       <StatusBar style="auto" />
     </View>
   );
