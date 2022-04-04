@@ -1,5 +1,5 @@
 import { StatusBar } from "expo-status-bar";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   StyleSheet,
@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { Audio } from "expo-av";
 import { store } from "../../firebase";
+import axios from "axios";
 //import Sound from "react-native-sound";
 
 export default function RecordScreen() {
@@ -22,10 +23,15 @@ export default function RecordScreen() {
   const [message, setMessage] = React.useState("");
   const [uri, setURI] = useState("");
 
-  // For testing the communication from frontend to backend
-  // Might need to rework this cause its sloppy
-  const [url1, setURL1] = useState("");
-  const [url2, setURL2] = useState("");
+  const overlayBothURLs = async (url1, url2) => {
+    await axios.put("http://127.0.0.1:5000/audio", {
+      "audioURL1": url1,
+      "audioURL2": url2, 
+    })
+    .then(() => {
+      console.log("Overlayed both audio");
+    })
+  };
   
   // Start recording function
   async function startRecording() {
@@ -177,23 +183,14 @@ export default function RecordScreen() {
    *  and then merge it
    */
   const getURL = async () => {
-    // Some hard coded URL's from the hardcoded audio files in Firebase storage
-    store
-      .ref("instrumental.wav")
-      .getDownloadURL()
-      .then(async function (url) {
-        setURL1(url);
-      });
-    store
-      .ref("voice.wav")
-      .getDownloadURL()
-      .then(async function (url) {
-        setURL2(url);
-      });
+    const instrumentalRef = store.ref("instrumental.wav");
+    const voiceRef = store.ref("voice.wav");
+    const instrumentalURL = await instrumentalRef.getDownloadURL();
+    const voiceURL = await voiceRef.getDownloadURL();
+    console.log("instrumental.wav URL: ", instrumentalURL);
+    console.log("voice.wav URL: ", voiceURL);
 
-    // Do whatever you need to do with the two URLs.
-    console.log(url1);
-    console.log(url2);
+    overlayBothURLs(instrumentalURL.toString(), voiceURL.toString());
   };
 
   return (
