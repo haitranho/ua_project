@@ -12,7 +12,8 @@ import {
 import { Audio } from "expo-av";
 import { store } from "../../firebase";
 import axios from "axios";
-//import Sound from "react-native-sound";
+
+import Sound from "react-native-sound";
 
 export default function RecordScreen() {
   // Holds current recording
@@ -23,16 +24,20 @@ export default function RecordScreen() {
   const [message, setMessage] = React.useState("");
   const [uri, setURI] = useState("");
 
+  // sound state for original audio
+  const [originalURL, setOriginalURL] = React.useState();
+
   const overlayBothURLs = async (url1, url2) => {
-    await axios.put("http://127.0.0.1:5000/audio", {
-      "audioURL1": url1,
-      "audioURL2": url2, 
-    })
-    .then(() => {
-      console.log("Overlayed both audio");
-    })
+    await axios
+      .put("http://127.0.0.1:5000/audio", {
+        audioURL1: url1,
+        audioURL2: url2,
+      })
+      .then(() => {
+        console.log("Overlayed both audio");
+      });
   };
-  
+
   // Start recording function
   async function startRecording() {
     try {
@@ -71,6 +76,9 @@ export default function RecordScreen() {
           },
         });
         recording.setOnRecordingStatusUpdate();
+
+        // Play sound when recording --- NOT CURRENTLY WORKING FOR SOME REASON
+        playSound();
         await recording.startAsync();
 
         setRecording(recording);
@@ -88,7 +96,7 @@ export default function RecordScreen() {
     setRecording(undefined);
     // Stops the recording and from memory
     await recording.stopAndUnloadAsync();
-    
+
     // Get existing recordings
     let updatedRecordings = [...recordings];
     // New Sound object to play back the recording and status of the Sound object
@@ -144,7 +152,7 @@ export default function RecordScreen() {
     /* Save the audio recording into Storage and using the recording's uri */
     store
       .ref()
-      .child("test.wav")
+      .child("recording.wav")
       .put(blob)
       .then(() => {
         console.log("Succesfully saved");
@@ -155,7 +163,7 @@ export default function RecordScreen() {
 
   const getRecording = async () => {
     store // Gets file from firebase
-      .ref("test.wav")
+      .ref("recording.wav")
       .getDownloadURL()
       .then(async function (url) {
         console.log(url);
@@ -184,14 +192,35 @@ export default function RecordScreen() {
    */
   const getURL = async () => {
     const instrumentalRef = store.ref("instrumental.wav");
-    const voiceRef = store.ref("voice.wav");
+    const voiceRef = store.ref("recording.wav");
     const instrumentalURL = await instrumentalRef.getDownloadURL();
-    const voiceURL = await voiceRef.getDownloadURL();
+    const recordingURL = await voiceRef.getDownloadURL();
     console.log("instrumental.wav URL: ", instrumentalURL);
-    console.log("voice.wav URL: ", voiceURL);
+    console.log("recording.wav URL: ", recordingURL);
 
-    overlayBothURLs(instrumentalURL.toString(), voiceURL.toString());
+    overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
   };
+
+  /**
+   *  Attempted to create a function that played the instrumental given the reference.
+   *  It gets the download URL, uses a useState to set the originalURL and creates a sound object
+   *  I attempt to call this function in startRecording, not entirely sure if I called it in the right place.
+   */
+  async function playSound() {
+    // console.log('Loading Sound');
+    const instrumentalRef = store.ref("instrumental.wav");
+    const instrumentalURL = await instrumentalRef.getDownloadURL();
+    setOriginalURL(instrumentalURL);
+
+    const sound = new Sound(originalURL, null, (error) => {
+      if (error) {
+        // do something
+        console.log("there an error");
+      }
+      // play when loaded
+      sound.play();
+    });
+  }
 
   return (
     <View style={styles.container}>
@@ -228,8 +257,8 @@ export default function RecordScreen() {
         />
       </TouchableOpacity>
       <Button title="Get Recording" onPress={getRecording} />
-      <Button title="Send 2 URL's to backend" onPress={getURL} />
-      {getRecordingLines()}
+      <Button title="Upload modified track" onPress={getURL} />
+      {getRecordingLines()} 
       <StatusBar style="auto" />
     </View>
   );
