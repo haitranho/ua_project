@@ -13,7 +13,7 @@ import { Audio } from "expo-av";
 import { store } from "../../firebase";
 import axios from "axios";
 
-import Sound from "react-native-sound";
+// import Sound from "react-native-sound";
 
 export default function RecordScreen() {
   // Holds current recording
@@ -78,7 +78,8 @@ export default function RecordScreen() {
         recording.setOnRecordingStatusUpdate();
 
         // Play sound when recording --- NOT CURRENTLY WORKING FOR SOME REASON
-        playSound();
+        // playSound();
+        getRecording();
         await recording.startAsync();
 
         setRecording(recording);
@@ -163,7 +164,7 @@ export default function RecordScreen() {
 
   const getRecording = async () => {
     store // Gets file from firebase
-      .ref("recording.wav")
+      .ref("instrumental.wav")
       .getDownloadURL()
       .then(async function (url) {
         console.log(url);
@@ -171,7 +172,7 @@ export default function RecordScreen() {
         try {
           await Audio.setAudioModeAsync({
             playsInSilentModeIOS: true,
-            allowsRecordingIOS: false,
+            allowsRecordingIOS: true,
           }); // Sets up phone to play properly
           const load_status = await sound.loadAsync({ uri: url }, {}, true); // Downloads url taken from firebase
           console.log(load_status);
