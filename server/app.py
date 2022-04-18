@@ -49,7 +49,7 @@ def put():
     r2 = requests.get(args["audioURL2"], allow_redirects=True)
     open('the_instrumental.wav', 'wb').write(r1.content)
     open('the_voiceover.wav', 'wb').write(r2.content)
-    os.system("ffmpeg -i the_instrumental.wav -i the_voiceover.wav -filter_complex amerge=inputs=2 -ac 2 overlayed_audio.wav")
+    os.system("y | ffmpeg -i the_instrumental.wav -i the_voiceover.wav -filter_complex amerge=inputs=2 -ac 2 overlayed_audio.wav")
     # Store overlayed_audio.wav into firebase
     # cloudStorage.child("overlayed_audio.wav").put("overlayed_audio.wav")
     # storage.child(path_on_cloud).put("overlayed_audio.wav")
