@@ -13,19 +13,40 @@ import { Audio } from "expo-av";
 import { store } from "../../firebase";
 import axios from "axios";
 
-// import Sound from "react-native-sound";
-
 export default function RecordScreen() {
-  // Holds current recording
-  const [recording, setRecording] = React.useState();
-  // Holds past recordings
-  const [recordings, setRecordings] = React.useState([]);
-  // Error message
-  const [message, setMessage] = React.useState("");
-  const [uri, setURI] = useState("");
+  const [recording, setRecording] = React.useState();         // Holds current recording
+  const [recordings, setRecordings] = React.useState([]);     // Holds past recordings
+  const [message, setMessage] = React.useState("");           // Error message
+  const [uri, setURI] = useState("");                         // Sets the URI of the audio recording
+  const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object 
+  const [originalURL, setOriginalURL] = React.useState();     // original audio url
 
-  // sound state for original audio
-  const [originalURL, setOriginalURL] = React.useState();
+   /* *
+   * Loads the audio as soon as the component renders
+   */
+  //  useEffect(() => {
+  //   store // Gets file from firebase
+  //     .ref("instrumental.wav")
+  //     .getDownloadURL()
+  //     .then(async function (url) {
+  //       console.log(url);
+  //       const original = new Audio.Sound();
+  //       try {
+  //         await Audio.setAudioModeAsync({
+  //           playsInSilentModeIOS: true,
+  //           allowsRecordingIOS: true,
+  //         }); // Sets up phone to play properly
+  //         const load_status = await original.loadAsync({ uri: url }, {}, true); // Downloads url taken from firebase
+  //         setOriginalAudio(original); // Using the useState function to set the originalAudio state
+  //         console.log(load_status);   
+  //         // const status = await sound.playAsync(); //
+  //         // console.log(status);
+  //         //await sound.unloadAsync();
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     });
+  // }, []);
 
   const overlayBothURLs = async (url1, url2) => {
     await axios
@@ -77,11 +98,12 @@ export default function RecordScreen() {
         });
         recording.setOnRecordingStatusUpdate();
 
-        // Play sound when recording --- NOT CURRENTLY WORKING FOR SOME REASON
-        // playSound();
-        getRecording();
-        await recording.startAsync();
+        // Currently just hijacking getRecording's functionality to play the audio.
+        // Once useEffect is properly working, you probably want to create a separate function to play the originalAudio sound object and put it
+        // right here. Study the structure of getRecording to figure out how to load and play an audio.
 
+        getRecording(); 
+        await recording.startAsync();
         setRecording(recording);
       } else {
         setMessage("Please grant permission to app to access microphone");
@@ -201,27 +223,6 @@ export default function RecordScreen() {
 
     overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
   };
-
-  /**
-   *  Attempted to create a function that played the instrumental given the reference.
-   *  It gets the download URL, uses a useState to set the originalURL and creates a sound object
-   *  I attempt to call this function in startRecording, not entirely sure if I called it in the right place.
-   */
-  async function playSound() {
-    // console.log('Loading Sound');
-    const instrumentalRef = store.ref("instrumental.wav");
-    const instrumentalURL = await instrumentalRef.getDownloadURL();
-    setOriginalURL(instrumentalURL);
-
-    const sound = new Sound(originalURL, null, (error) => {
-      if (error) {
-        // do something
-        console.log("there an error");
-      }
-      // play when loaded
-      sound.play();
-    });
-  }
 
   return (
     <View style={styles.container}>
