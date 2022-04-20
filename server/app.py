@@ -2,25 +2,25 @@ from flask import Flask
 from flask_restful import Resource, reqparse
 import os
 import requests
-# from pyrebase import pyrebase
+from pyrebase import pyrebase
 
 app = Flask(__name__)
 
 # Firebase Configurations
-# firebaseConfig = {
-#     "apiKey": "AIzaSyA7iwtXCRcyWID9qWec8W12tpZ23OGlgso",
-#     "authDomain": "modio-45f92.firebaseapp.com",
-#     "databaseURL": "https://modio-45f92.firebaseio.com",
-#     "projectId": "modio-45f92",
-#     "storageBucket": "modio-45f92.appspot.com",
-#     "messagingSenderId": "955895092133",
-#     "appId": "1:955895092133:web:3151813ec451aa03028e4c",
-#     "measurementId": "G-VJE8RZMEDC"
-# }
+firebaseConfig = {
+    "apiKey": "AIzaSyA7iwtXCRcyWID9qWec8W12tpZ23OGlgso",
+    "authDomain": "modio-45f92.firebaseapp.com",
+    "databaseURL": "https://modio-45f92.firebaseio.com",
+    "projectId": "modio-45f92",
+    "storageBucket": "modio-45f92.appspot.com",
+    "messagingSenderId": "955895092133",
+    "appId": "1:955895092133:web:3151813ec451aa03028e4c",
+    "measurementId": "G-VJE8RZMEDC"
+}
 
-# firebase = pyrebase.initialize_app(firebaseConfig)
-# storage = firebase.storage()
-# path_on_cloud = "/audio/overlayed_audio.wav"
+firebase = pyrebase.initialize_app(firebaseConfig)
+storage = firebase.storage()
+path_on_cloud = "/audio/overlayed_audio.wav"
 
 # db = firebase.database()
 # Firebase Storage Initialization
@@ -34,6 +34,7 @@ audio_put_args.add_argument(
 audio_put_args.add_argument(
     "audioURL2", type=str, help="URL 2 of the audio is required", required=True)
 
+
 @app.after_request
 def set_headers(response):
     response.headers["Access-Control-Allow-Origin"] = "*"
@@ -42,6 +43,8 @@ def set_headers(response):
     return response
 
 # Controllers
+
+
 @app.route('/audio', methods=['PUT'])
 def put():
     args = audio_put_args.parse_args()
@@ -52,8 +55,9 @@ def put():
     os.system("y | ffmpeg -i the_instrumental.wav -i the_voiceover.wav -filter_complex amerge=inputs=2 -ac 2 overlayed_audio.wav")
     # Store overlayed_audio.wav into firebase
     # cloudStorage.child("overlayed_audio.wav").put("overlayed_audio.wav")
-    # storage.child(path_on_cloud).put("overlayed_audio.wav")
+    storage.child(path_on_cloud).put("overlayed_audio.wav")
     return {"Overlayed Audio": "Success"}, 200
+
 
 if __name__ == "__main__":
     app.run(debug=True)
