@@ -14,39 +14,40 @@ import { store } from "../../firebase";
 import axios from "axios";
 
 export default function RecordScreen() {
-  const [recording, setRecording] = React.useState();         // Holds current recording
-  const [recordings, setRecordings] = React.useState([]);     // Holds past recordings
-  const [message, setMessage] = React.useState("");           // Error message
-  const [uri, setURI] = useState("");                         // Sets the URI of the audio recording
-  const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object 
-  const [originalURL, setOriginalURL] = React.useState();     // original audio url
+  const [recording, setRecording] = React.useState(); // Holds current recording
+  const [recordings, setRecordings] = React.useState([]); // Holds past recordings
+  const [message, setMessage] = React.useState(""); // Error message
+  const [uri, setURI] = useState(""); // Sets the URI of the audio recording
+  const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
+  const [originalURL, setOriginalURL] = React.useState(); // original audio url
 
-   /* *
-   * Loads the audio as soon as the component renders
+  /* *
+   * Loads the originalAudio as soon as the component renders
+   * Before hitting the record button to listen to the audio/record... watch
+   * the console to make sure the audio has loaded first. There's a status message once the
+   * original audio is loaded from Firebase. Even with the useEffect, its not quite as instant
+   * as the RecordScreen
    */
-  //  useEffect(() => {
-  //   store // Gets file from firebase
-  //     .ref("instrumental.wav")
-  //     .getDownloadURL()
-  //     .then(async function (url) {
-  //       console.log(url);
-  //       const original = new Audio.Sound();
-  //       try {
-  //         await Audio.setAudioModeAsync({
-  //           playsInSilentModeIOS: true,
-  //           allowsRecordingIOS: true,
-  //         }); // Sets up phone to play properly
-  //         const load_status = await original.loadAsync({ uri: url }, {}, true); // Downloads url taken from firebase
-  //         setOriginalAudio(original); // Using the useState function to set the originalAudio state
-  //         console.log(load_status);   
-  //         // const status = await sound.playAsync(); //
-  //         // console.log(status);
-  //         //await sound.unloadAsync();
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     });
-  // }, []);
+  useEffect(() => {
+    store // Gets file from firebase
+      .ref("instrumental.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        console.log(url);
+        const original = new Audio.Sound();
+        try {
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            allowsRecordingIOS: true,
+          }); // Sets up phone to play properly
+          const load_status = await original.loadAsync({ uri: url }, {}, true); // Downloads url taken from firebase
+          setOriginalAudio(original); // Using the useState function to set the originalAudio state
+          console.log(load_status);
+        } catch (error) {
+          console.log(error);
+        }
+      });
+  }, []);
 
   const overlayBothURLs = async (url1, url2) => {
     await axios
@@ -97,12 +98,8 @@ export default function RecordScreen() {
           },
         });
         recording.setOnRecordingStatusUpdate();
-
-        // Currently just hijacking getRecording's functionality to play the audio.
-        // Once useEffect is properly working, you probably want to create a separate function to play the originalAudio sound object and put it
-        // right here. Study the structure of getRecording to figure out how to load and play an audio.
-
-        getRecording(); 
+        const status = await originalAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
+        console.log(status);
         await recording.startAsync();
         setRecording(recording);
       } else {
@@ -116,6 +113,9 @@ export default function RecordScreen() {
 
   // Stop recording function
   async function stopRecording() {
+    const stopStatus = await originalAudio.stopAsync(); // First, stop the audio of the instrumental from playing
+    console.log(status);
+
     setRecording(undefined);
     // Stops the recording and from memory
     await recording.stopAndUnloadAsync();
@@ -186,7 +186,7 @@ export default function RecordScreen() {
 
   const getRecording = async () => {
     store // Gets file from firebase
-      .ref("instrumental.wav")
+      .ref("instrumental.wav") // hard coded
       .getDownloadURL()
       .then(async function (url) {
         console.log(url);
@@ -260,7 +260,7 @@ export default function RecordScreen() {
       </TouchableOpacity>
       <Button title="Get Recording" onPress={getRecording} />
       <Button title="Upload modified track" onPress={getURL} />
-      {getRecordingLines()} 
+      {getRecordingLines()}
       <StatusBar style="auto" />
     </View>
   );
