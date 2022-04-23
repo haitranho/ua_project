@@ -26,7 +26,7 @@ export default function RecordScreen() {
    * Before hitting the record button to listen to the audio/record... watch
    * the console to make sure the audio has loaded first. There's a status message once the
    * original audio is loaded from Firebase. Even with the useEffect, its not quite as instant
-   * as the RecordScreen
+   * as the RecordScreen loading
    */
   useEffect(() => {
     store // Gets file from firebase
