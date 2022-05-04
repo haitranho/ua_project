@@ -40,14 +40,15 @@ export default function RecordScreen() {
             playsInSilentModeIOS: true,
             allowsRecordingIOS: true,
           }); // Sets up phone to play properly
-          const load_status = await original.loadAsync({ uri: url }, {}, true); // Downloads url taken from firebase
+          const load_status = await original.loadAsync({ uri: url }, {}, false); // Downloads url taken from firebase
           setOriginalAudio(original); // Using the useState function to set the originalAudio state
-          console.log(load_status);
+          console.log("Loading Status: ", load_status);
+          // await originalAudio.playAsync();
         } catch (error) {
           console.log(error);
         }
       });
-  }, []);
+  }, [setOriginalAudio]);
 
   const overlayBothURLs = async (url1, url2) => {
     await axios
@@ -99,7 +100,7 @@ export default function RecordScreen() {
         });
         recording.setOnRecordingStatusUpdate();
         const status = await originalAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
-        console.log(status);
+        console.log("Starting status: ", status);
         await recording.startAsync();
         setRecording(recording);
       } else {
@@ -114,7 +115,7 @@ export default function RecordScreen() {
   // Stop recording function
   async function stopRecording() {
     const stopStatus = await originalAudio.stopAsync(); // First, stop the audio of the instrumental from playing
-    console.log(status);
+    console.log("Stopping status: ", stopStatus);
 
     setRecording(undefined);
     // Stops the recording and from memory
