@@ -26,7 +26,7 @@ const LoginScreen = () => {
   useEffect(() => {
     const unsubscribe = auth.onAuthStateChanged((user) => {
       if (user) {
-        navigation.navigate("Record");
+        navigation.navigate("Record2");
       }
     });
     return unsubscribe;
@@ -40,7 +40,7 @@ const LoginScreen = () => {
     auth
       .signInWithEmailAndPassword(email, password)
       .then((userCredentials) => {
-        navigation.navigate("Record");
+        navigation.navigate("Record2");
       })
       .catch((error) => alert(error.message)); // print alert for failure
   };
