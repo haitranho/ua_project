@@ -10,22 +10,37 @@ import {
   Touchable,
   Image,
 } from "react-native";
-import { auth } from "../../firebase";
 import { useNavigation } from "@react-navigation/core";
 import { backgroundColor } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
+import { auth, db } from "../../firebase";
 
-const UploadScreen = () => {
+const UploadScreen = ({ route }) => {
   // States
   const [songName, setSongName] = useState("");
   const navigation = useNavigation();
+  const { url, userID } = route.params; // Meta data for song upload
 
   const postRecording = () => {
-    navigation.navigate("Record2");
+    // Create meta data and upload it here
+    const songData = {
+      userID: userID,
+      url: url,
+      title: songName,
+    };
+
+    // Upload the meta data to the audio collection in Firebase DB
+    db.collection("audio")
+      .doc(songName)
+      .set(songData)
+      .then(() => {
+        console.log("collection added!");
+        navigation.navigate("Record2");
+      });
   };
 
   const discard = () => {
     navigation.navigate("Record2");
-  }
+  };
 
   return (
     <SafeAreaView style={styles.container}>

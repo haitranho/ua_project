@@ -10,7 +10,7 @@ import {
 import { useNavigation } from "@react-navigation/core";
 
 import { Audio } from "expo-av";
-import { store } from "../../firebase";
+import { auth, store } from "../../firebase";
 import axios from "axios";
 
 export default function DesignedRecordScreen() {
@@ -27,6 +27,13 @@ export default function DesignedRecordScreen() {
     navigation.navigate("Login");
   };
 
+  
+
+ /* *
+   * This function will over lay the user's voice over the audio to be modified
+   * and then send the meta data for the upload to the UploadScreen so that the data
+   * can be uploaded to Firebase db. 
+   */
   async function post() {
     const instrumentalRef = store.ref("instrumental.wav");
     const voiceRef = store.ref("recording.wav");
@@ -35,7 +42,18 @@ export default function DesignedRecordScreen() {
     console.log("instrumental.wav URL: ", instrumentalURL);
     console.log("recording.wav URL: ", recordingURL);
     overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
-    navigation.navigate("Upload");
+
+    // get the URL of the overlayed audio
+    const overlayRef = store.ref("audio/overlayed_audio.wav");
+    const overlayURL = await overlayRef.getDownloadURL();
+    // console.log("The overlay url is: ");
+    // console.log(overlayURL.toString());
+
+    // Navigate to the Upload screen 
+    navigation.navigate("Upload", {
+      url: overlayURL.toString(),
+      userID: auth.currentUser.uid,
+    });
   }
 
   /* *
@@ -234,9 +252,11 @@ export default function DesignedRecordScreen() {
       >
         <Image
           style={{ width: 125, height: 125 }}
-          source={recording
-            ? require("../../assets/recording.png")
-            : require("../../assets/notRecording.png")}
+          source={
+            recording
+              ? require("../../assets/recording.png")
+              : require("../../assets/notRecording.png")
+          }
         />
       </TouchableOpacity>
     </View>
