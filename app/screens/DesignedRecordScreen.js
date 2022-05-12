@@ -234,7 +234,9 @@ export default function DesignedRecordScreen() {
       >
         <Image
           style={{ width: 125, height: 125 }}
-          source={require("../../assets/notRecording.png")}
+          source={recording
+            ? require("../../assets/recording.png")
+            : require("../../assets/notRecording.png")}
         />
       </TouchableOpacity>
     </View>
