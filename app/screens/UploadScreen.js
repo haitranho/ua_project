@@ -14,12 +14,13 @@ import { auth } from "../../firebase";
 import { useNavigation } from "@react-navigation/core";
 import { backgroundColor } from "react-native/Libraries/Components/View/ReactNativeStyleAttributes";
 
-const UploadScreen = () => {
+const UploadScreen = ({route}) => {
   // States
   const [songName, setSongName] = useState("");
   const navigation = useNavigation();
 
   const postRecording = () => {
+    console.log(route.params.url);
     navigation.navigate("Record2");
   };
 

@@ -6,6 +6,7 @@ import LoginScreen from './app/screens/LoginScreen';
 import RecordScreen from './app/screens/RecordScreen';
 import DesignedRecordScreen from './app/screens/DesignedRecordScreen';
 import UploadScreen from './app/screens/UploadScreen';
+import DiscoverScreen from './app/screens/DiscoverScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -19,6 +20,7 @@ export default function App() {
           <Stack.Screen name="Record" options={{headerShown: false}} component={RecordScreen} />
           <Stack.Screen name="Record2" options={{headerShown: false}} component={DesignedRecordScreen} />
           <Stack.Screen name="Upload" options={{headerShown: false}} component={UploadScreen} />
+          <Stack.Screen name="Discover" options={{headerShown: false}} component={DiscoverScreen} />
         </Stack.Navigator>
       </NavigationContainer>
     </SafeAreaProvider>

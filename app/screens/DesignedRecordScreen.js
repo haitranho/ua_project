@@ -24,7 +24,7 @@ export default function DesignedRecordScreen() {
 
   // Navigation stuff
   const back = () => {
-    navigation.navigate("Login");
+    navigation.navigate("Discover");
   };
 
   async function post() {
@@ -35,7 +35,7 @@ export default function DesignedRecordScreen() {
     console.log("instrumental.wav URL: ", instrumentalURL);
     console.log("recording.wav URL: ", recordingURL);
     overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
-    navigation.navigate("Upload");
+    navigation.navigate("Upload", {url: "Hello"});
   }
 
   /* *
