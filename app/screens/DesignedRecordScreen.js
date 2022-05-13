@@ -32,21 +32,19 @@ export default function DesignedRecordScreen() {
    * Playback function after the user has finished listening
    */
 
- /* *
+  /* *
    * This function will over lay the user's voice over the audio to be modified
    * and then send the meta data for the upload to the UploadScreen so that the data
-   * can be uploaded to Firebase db. 
+   * can be uploaded to Firebase db.
    */
   async function post() {
-
-
     // get the URL of the overlayed audio
     const overlayRef = store.ref("audio/overlayed_audio.wav");
     const overlayURL = await overlayRef.getDownloadURL();
     // console.log("The overlay url is: ");
     // console.log(overlayURL.toString());
 
-    // Navigate to the Upload screen 
+    // Navigate to the Upload screen
     navigation.navigate("Upload", {
       url: overlayURL.toString(),
       userID: auth.currentUser.uid,
@@ -92,61 +90,67 @@ export default function DesignedRecordScreen() {
       .then(() => {
         console.log("Overlayed both audio");
 
-      //   <Button
-      //   style={styles.button}
-      //   onPress={console.log("Play overlayed audio")}
-      //   title="Play"
-      // ></Button>
+        //   <Button
+        //   style={styles.button}
+        //   onPress={console.log("Play overlayed audio")}
+        //   title="Play"
+        // ></Button>
       });
-      // getOverlayLines();
-
+    getOverlayLines();
   };
 
-  // function getOverlayLines() {
-  // store 
-  //   .ref("audio/overlayed_audio.wav")
-  //     .getDownloadURL()
-  //     .then(async function (url) {
-  //       console.log(url);
-  //       const overlayAudio = new Audio.Sound();
-  //       try {
-  //         await Audio.setAudioModeAsync({
-  //           playsInSilentModeIOS: true,
-  //           allowsRecordingIOS: true,
-  //         }); // Sets up phone to play properly
-  //         const load_status = await overlayAudio.loadAsync({ uri: url }, {}, false); // Downloads url taken from firebase
-  //         setOverlayAudio(overlayAudio); // Using the useState function to set the originalAudio state
-  //         console.log("Loading Status: ", load_status);
-  //         const status = await overlayAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
-  //       console.log("Starting status: ", status);
-  //         // await originalAudio.playAsync();
-  //       } catch (error) {
-  //         console.log(error);
-  //       }
-  //     });
-  //   }
-    
-  
-    
-    // return recordings.map((recordingLine, index) => {
-    //   return (
-    //     <View key={index} style={styles.row}>
-    //       <Text style={styles.fill}>
-    //         Recording {index + 1} - {recordingLine.duration}
-    //       </Text>
-    //       <Button
-    //         style={styles.button}
-    //         onPress={() => recordingLine.sound.replayAsync()}
-    //         title="Play"
-    //       ></Button>
-    //       <Button
-    //         style={styles.button}
-    //         onPress={uploadRecording}
-    //         title="Save"
-    //       ></Button>
-    //     </View>
-    //   );
-    // });
+  function getOverlayLines() {
+    store
+      .ref("audio/overlayed_audio.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        console.log(url);
+        const overlayAudio = new Audio.Sound();
+        try {
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            allowsRecordingIOS: true,
+          }); // Sets up phone to play properly
+          const load_status = await overlayAudio.loadAsync(
+            { uri: url },
+            {},
+            false
+          ); // Downloads url taken from firebase
+          setOverlayAudio(overlayAudio); // Using the useState function to set the originalAudio state
+          <Button
+          style={styles.button}
+          onPress={() => await overlayAudio.replayAsync()}
+          title="Play"
+        ></Button>
+          // console.log("Loading Status: ", load_status);
+          // const status = await overlayAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
+          console.log("Starting status: ", status);
+          // await originalAudio.playAsync();
+        } catch (error) {
+          console.log(error);
+        }
+      });
+  }
+
+  // return recordings.map((recordingLine, index) => {
+  //   return (
+  //     <View key={index} style={styles.row}>
+  //       <Text style={styles.fill}>
+  //         Recording {index + 1} - {recordingLine.duration}
+  //       </Text>
+  //       <Button
+  //         style={styles.button}
+  //         onPress={() => recordingLine.sound.replayAsync()}
+  //         title="Play"
+  //       ></Button>
+  //       <Button
+  //         style={styles.button}
+  //         onPress={uploadRecording}
+  //         title="Save"
+  //       ></Button>
+  //     </View>
+  //   );
+  // });
   // }
 
   // Start recording function
