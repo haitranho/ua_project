@@ -19,6 +19,7 @@ export default function DesignedRecordScreen() {
   const [message, setMessage] = React.useState(""); // Error message
   const [uri, setURI] = useState(""); // Sets the URI of the audio recording
   const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
+  const [originalOverlayAudio, setOverlayAudio] = React.useState(); // original audio sound object
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
   const navigation = useNavigation();
 
@@ -27,7 +28,9 @@ export default function DesignedRecordScreen() {
     navigation.navigate("Login");
   };
 
-  
+  /**
+   * Playback function after the user has finished listening
+   */
 
  /* *
    * This function will over lay the user's voice over the audio to be modified
@@ -35,13 +38,7 @@ export default function DesignedRecordScreen() {
    * can be uploaded to Firebase db. 
    */
   async function post() {
-    const instrumentalRef = store.ref("instrumental.wav");
-    const voiceRef = store.ref("recording.wav");
-    const instrumentalURL = await instrumentalRef.getDownloadURL();
-    const recordingURL = await voiceRef.getDownloadURL();
-    console.log("instrumental.wav URL: ", instrumentalURL);
-    console.log("recording.wav URL: ", recordingURL);
-    overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
+
 
     // get the URL of the overlayed audio
     const overlayRef = store.ref("audio/overlayed_audio.wav");
@@ -94,8 +91,63 @@ export default function DesignedRecordScreen() {
       })
       .then(() => {
         console.log("Overlayed both audio");
+
+      //   <Button
+      //   style={styles.button}
+      //   onPress={console.log("Play overlayed audio")}
+      //   title="Play"
+      // ></Button>
       });
+      // getOverlayLines();
+
   };
+
+  // function getOverlayLines() {
+  // store 
+  //   .ref("audio/overlayed_audio.wav")
+  //     .getDownloadURL()
+  //     .then(async function (url) {
+  //       console.log(url);
+  //       const overlayAudio = new Audio.Sound();
+  //       try {
+  //         await Audio.setAudioModeAsync({
+  //           playsInSilentModeIOS: true,
+  //           allowsRecordingIOS: true,
+  //         }); // Sets up phone to play properly
+  //         const load_status = await overlayAudio.loadAsync({ uri: url }, {}, false); // Downloads url taken from firebase
+  //         setOverlayAudio(overlayAudio); // Using the useState function to set the originalAudio state
+  //         console.log("Loading Status: ", load_status);
+  //         const status = await overlayAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
+  //       console.log("Starting status: ", status);
+  //         // await originalAudio.playAsync();
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     });
+  //   }
+    
+  
+    
+    // return recordings.map((recordingLine, index) => {
+    //   return (
+    //     <View key={index} style={styles.row}>
+    //       <Text style={styles.fill}>
+    //         Recording {index + 1} - {recordingLine.duration}
+    //       </Text>
+    //       <Button
+    //         style={styles.button}
+    //         onPress={() => recordingLine.sound.replayAsync()}
+    //         title="Play"
+    //       ></Button>
+    //       <Button
+    //         style={styles.button}
+    //         onPress={uploadRecording}
+    //         title="Save"
+    //       ></Button>
+    //     </View>
+    //   );
+    // });
+  // }
 
   // Start recording function
   async function startRecording() {
@@ -174,7 +226,16 @@ export default function DesignedRecordScreen() {
     console.log(recording.getURI());
 
     // Some temporary functionality for now. Gonna upload the recording as soon as the user stops the recording
-    uploadRecording();
+    await uploadRecording();
+
+    // Overlay audio
+    const instrumentalRef = store.ref("instrumental.wav");
+    const voiceRef = store.ref("recording.wav");
+    const instrumentalURL = await instrumentalRef.getDownloadURL();
+    const recordingURL = await voiceRef.getDownloadURL();
+    console.log("instrumental.wav URL: ", instrumentalURL);
+    console.log("recording.wav URL: ", recordingURL);
+    await overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
   }
 
   // Duration of the recording
