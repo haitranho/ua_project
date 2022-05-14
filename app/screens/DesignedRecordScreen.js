@@ -13,7 +13,7 @@ import { Audio } from "expo-av";
 import { store } from "../../firebase";
 import axios from "axios";
 
-export default function DesignedRecordScreen() {
+export default function DesignedRecordScreen({ route }) {
   const [recording, setRecording] = React.useState(); // Holds current recording
   const [recordings, setRecordings] = React.useState([]); // Holds past recordings
   const [message, setMessage] = React.useState(""); // Error message
@@ -46,6 +46,7 @@ export default function DesignedRecordScreen() {
    * as the RecordScreen loading
    */
   useEffect(() => {
+    console.log("Current URL: ", route.params.url)
     store // Gets file from firebase
       .ref("instrumental.wav")
       .getDownloadURL()

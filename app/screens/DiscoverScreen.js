@@ -1,13 +1,68 @@
-import React, { Component } from "react";
+import React, { Component, useState, useEffect} from "react";
 import { StyleSheet, View, Text, ScrollView, Image, TouchableOpacity } from "react-native";
 import Svg, { Ellipse } from "react-native-svg";
+import { store } from "../../firebase";
+import { Audio } from "expo-av";
 import { useNavigation } from "@react-navigation/core";
+import SliderNativeComponent from "react-native/Libraries/Components/Slider/SliderNativeComponent";
 
 export default function DiscoveryScreen2() {
+  const [originalAudio, setOriginalAudio] = React.useState();
+  const [isPlaying, setIsPlaying] = useState(false);
+  //const [playbackObject, setPlaybackObject] = useState(null);
+  const [currentUrl, setCurrentUrl] = useState(null);
+  const [playbackStatus, setPlaybackStatus] = useState(null);
+
   const navigation = useNavigation();
+  const playbackObject = new Audio.Sound();
+  //const isPlaying = false;
+
+  useEffect(() => {
+    store // Gets file from firebase
+      .ref("instrumental.wav")
+      .getDownloadURL()
+      .then(async function (url) {
+        setCurrentUrl(url);
+        console.log(url);
+        // if (playbackObject === null) {
+        //setPlaybackObject(new Audio.Sound());
+        //   console.log("Object Created: ", playbackObject)
+        // }
+        try {
+          await Audio.setAudioModeAsync({
+            playsInSilentModeIOS: true,
+            allowsRecordingIOS: true,
+          }); // Sets up phone to play properly
+          if (playbackObject !== null) {
+            const status = await playbackObject.loadAsync({ uri: url }, { shouldPlay: isPlaying }); // Downloads url taken from firebase
+            console.log(status);
+          }
+          // await originalAudio.playAsync();
+        } catch (error) {
+          console.log(error);
+        }
+      });
+  }, []);
+
+
+  const handleAudioPlayPause = async () => {
+    // It will pause our audio
+    if (isPlaying) {
+      const status = await playbackObject.pauseAsync();
+      setIsPlaying(false);
+      return setPlaybackStatus(status);
+    }
+    // It will resume our audio
+    if (!isPlaying) {
+      const status = await playbackObject.playAsync();
+      setIsPlaying(true);
+      return setPlaybackStatus(status);
+    }
+  };
 
   const modify = () => {
-    navigation.navigate("Record2");
+    playbackObject.unloadAsync();
+    navigation.navigate("Record2", {url: currentUrl});
   }
 
   return (
@@ -17,7 +72,9 @@ export default function DiscoveryScreen2() {
         <TouchableOpacity onPress={modify}>
             <Image style={styles.modify} source={require('../../assets/modify.png')}/>
         </TouchableOpacity>
-        <Image style={styles.playPause} source={require('../../assets/play.png')}/>
+        <TouchableOpacity onPress={handleAudioPlayPause}>
+          <Image style={styles.playPause} source={isPlaying ? require('../../assets/pause.png') : require('../../assets/play.png')}/>
+        </TouchableOpacity>
         <Image style={styles.share} source={require('../../assets/share.png')}/>
         <Image style={styles.skipForward} source={require('../../assets/skip_forward.png')}/>
       </View>
