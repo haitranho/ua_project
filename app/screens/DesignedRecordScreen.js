@@ -90,10 +90,10 @@ export default function DesignedRecordScreen() {
       .then(() => {
         console.log("Overlayed both audio");
       });
-    getOverlayLines();
+    // getOverlayLines();
   };
 
-  function getOverlayLines() {
+  function playOverlay() {
     store
       .ref("audio/overlayed_audio.wav")
       .getDownloadURL()
@@ -110,50 +110,20 @@ export default function DesignedRecordScreen() {
             {},
             false
           ); // Downloads url taken from firebase
-          setOverlayAudio(overlayAudio); // Using the useState function to set the originalAudio state
-          // <Button
-          //   style={styles.button}
-          //   onPress={() => overlayAudio.replayAsync()}
-          //   title="Play"
-          // ></Button>;
-          // console.log("Loading Status: ", load_status);
+          // setOverlayAudio(overlayAudio); // Using the useState function to set the originalAudio state
+          console.log("Loading Status: ", load_status);
           const status = await overlayAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
-          <view>
-            <Button
-              style={styles.button}
-              onPress={() => overlayAudio.replayAsync()}
-              title="Play"
-            ></Button>
-          </view>;
-          // console.log("Loading Status: ", load_status);
           console.log("Starting status: ", status);
-          // await originalAudio.playAsync();
         } catch (error) {
           console.log(error);
         }
       });
-  }
 
-  // return recordings.map((recordingLine, index) => {
-  //   return (
-  //     <View key={index} style={styles.row}>
-  //       <Text style={styles.fill}>
-  //         Recording {index + 1} - {recordingLine.duration}
-  //       </Text>
-  //       <Button
-  //         style={styles.button}
-  //         onPress={() => recordingLine.sound.replayAsync()}
-  //         title="Play"
-  //       ></Button>
-  //       <Button
-  //         style={styles.button}
-  //         onPress={uploadRecording}
-  //         title="Save"
-  //       ></Button>
-  //     </View>
-  //   );
-  // });
-  // }
+    // playback button
+    // playOverlay();
+
+    // console.log("Loading Status: ", load_status);
+  }
 
   // Start recording function
   async function startRecording() {
@@ -326,6 +296,17 @@ export default function DesignedRecordScreen() {
           }
         />
       </TouchableOpacity>
+
+      <View style={styles.btnContainer}>
+        <TouchableOpacity style={styles.userBtn} onPress={playOverlay}>
+          <Text style={styles.btnText}>Playback</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.userBtn} onPress={post}>
+          {/* Doesn't do anything right now */}
+          {/* Need to implement the sign up page for this button to work */}
+          <Text style={styles.btnText}>Post song</Text>
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -381,5 +362,16 @@ const styles = StyleSheet.create({
     height: 125,
     marginTop: 51,
     marginLeft: 125,
+  },
+  btnContainer: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    width: "95%",
+  },
+  userBtn: {
+    backgroundColor: "#409e39",
+    padding: 15,
+    width: "45%",
+    borderRadius: 10,
   },
 });
