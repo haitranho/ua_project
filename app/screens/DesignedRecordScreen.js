@@ -89,12 +89,6 @@ export default function DesignedRecordScreen() {
       })
       .then(() => {
         console.log("Overlayed both audio");
-
-        //   <Button
-        //   style={styles.button}
-        //   onPress={console.log("Play overlayed audio")}
-        //   title="Play"
-        // ></Button>
       });
     getOverlayLines();
   };
@@ -117,13 +111,21 @@ export default function DesignedRecordScreen() {
             false
           ); // Downloads url taken from firebase
           setOverlayAudio(overlayAudio); // Using the useState function to set the originalAudio state
-          <Button
-          style={styles.button}
-          onPress={() => await overlayAudio.replayAsync()}
-          title="Play"
-        ></Button>
+          // <Button
+          //   style={styles.button}
+          //   onPress={() => overlayAudio.replayAsync()}
+          //   title="Play"
+          // ></Button>;
           // console.log("Loading Status: ", load_status);
-          // const status = await overlayAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
+          const status = await overlayAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
+          <view>
+            <Button
+              style={styles.button}
+              onPress={() => overlayAudio.replayAsync()}
+              title="Play"
+            ></Button>
+          </view>;
+          // console.log("Loading Status: ", load_status);
           console.log("Starting status: ", status);
           // await originalAudio.playAsync();
         } catch (error) {
