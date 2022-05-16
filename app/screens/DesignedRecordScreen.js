@@ -17,11 +17,13 @@ export default function DesignedRecordScreen() {
   const [recording, setRecording] = React.useState(); // Holds current recording
   const [recordings, setRecordings] = React.useState([]); // Holds past recordings
   const [message, setMessage] = React.useState(""); // Error message
-  const [uri, setURI] = useState(""); // Sets the URI of the audio recording
+  const [uri, setURI] = useState(null); // Sets the URI of the audio recording
   const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
   const [originalOverlayAudio, setOverlayAudio] = React.useState(); // original audio sound object
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
   const navigation = useNavigation();
+
+  // uri = null;
 
   // Navigation stuff
   const back = () => {
@@ -80,6 +82,8 @@ export default function DesignedRecordScreen() {
       });
   }, [setOriginalAudio]);
 
+  // componentDidMount() what you want when you have initial state of the component (first)
+
   // Recording stuff
   const overlayBothURLs = async (url1, url2) => {
     await axios
@@ -93,7 +97,8 @@ export default function DesignedRecordScreen() {
     // getOverlayLines();
   };
 
-  function playOverlay() {
+
+   function playOverlay() {
     store
       .ref("audio/overlayed_audio.wav")
       .getDownloadURL()
@@ -196,7 +201,7 @@ export default function DesignedRecordScreen() {
       file: recording.getURI(),
     });
 
-    setURI(recording.getURI());
+    setURI(await recording.getURI());
     // Add array of recordings
     setRecordings(updatedRecordings);
     console.log(recording.getURI());
@@ -247,8 +252,19 @@ export default function DesignedRecordScreen() {
   // }
 
   const uploadRecording = async () => {
-    const response = await fetch(uri);
-    const blob = await response.blob();
+    const response = await fetch(uri)
+    // // fetch(uri)
+    //   .then(() => {
+    //     console.log("fetched recording uri")
+    //   })
+    //   .catch((e) => console.log("uploadRecording error: ", e));
+    
+
+    const blob = response.blob()
+    // .then(() => {
+    //   console.log("uploadRecording sucessfully created blob")
+    // })
+    // .catch((e) => console.log("uploadRecording error: ", e));
 
     /* Save the audio recording into Storage and using the recording's uri */
     store
