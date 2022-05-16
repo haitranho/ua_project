@@ -10,16 +10,18 @@ import {
 import { useNavigation } from "@react-navigation/core";
 
 import { Audio } from "expo-av";
-import { store } from "../../firebase";
+import { store, auth } from "../../firebase";
 import axios from "axios";
 
-export default function DesignedRecordScreen() {
+export default function DesignedRecordScreen({route}) {
   const [recording, setRecording] = React.useState(); // Holds current recording
   const [recordings, setRecordings] = React.useState([]); // Holds past recordings
   const [message, setMessage] = React.useState(""); // Error message
   const [uri, setURI] = useState(""); // Sets the URI of the audio recording
   const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
+  const {songUrl} = route.params; // Meta data for song upload
+
   const navigation = useNavigation();
 
   // Navigation stuff
@@ -34,8 +36,15 @@ export default function DesignedRecordScreen() {
     const recordingURL = await voiceRef.getDownloadURL();
     console.log("instrumental.wav URL: ", instrumentalURL);
     console.log("recording.wav URL: ", recordingURL);
-    overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
-    navigation.navigate("Upload", {url: "Hello"});
+    await overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
+
+    const overlayRef = store.ref("audio/overlayed_audio.wav");
+    const overlayURL = await overlayRef.getDownloadURL();
+
+    navigation.navigate("Upload", {
+      url: overlayURL.toString(),
+      userID: auth.currentUser.uid,
+    });
   }
 
   /* *
@@ -119,8 +128,6 @@ export default function DesignedRecordScreen() {
         const status = await originalAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
         console.log("Starting status: ", status);
         recording.setOnRecordingStatusUpdate();
-        // const status = await originalAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
-        // console.log("Starting status: ", status);
         await recording.startAsync();
         setRecording(recording);
       } else {
@@ -156,7 +163,7 @@ export default function DesignedRecordScreen() {
     console.log(recording.getURI());
 
     // Some temporary functionality for now. Gonna upload the recording as soon as the user stops the recording
-    uploadRecording();
+    // await uploadRecording();
   }
 
   // Duration of the recording
@@ -169,27 +176,28 @@ export default function DesignedRecordScreen() {
   }
 
   // Get recording lines and have them displayed
-  // function getRecordingLines() {
-  //   return recordings.map((recordingLine, index) => {
-  //     return (
-  //       <View key={index} style={styles.row}>
-  //         <Text style={styles.fill}>
-  //           Recording {index + 1} - {recordingLine.duration}
-  //         </Text>
-  //         <Button
-  //           style={styles.button}
-  //           onPress={() => recordingLine.sound.replayAsync()}
-  //           title="Play"
-  //         ></Button>
-  //         <Button
-  //           style={styles.button}
-  //           onPress={uploadRecording}
-  //           title="Save"
-  //         ></Button>
-  //       </View>
-  //     );
-  //   });
-  // }
+  function getRecordingLines() {
+    return recordings.map((recordingLine, index) => {
+      return (
+        <View key={index} style={styles.row}>
+          <Text style={styles.fill}>
+            Recording {index + 1} - {recordingLine.duration}
+          </Text>
+          <Button
+            style={styles.button}
+            onPress={() => recordingLine.sound.replayAsync()}
+            title="Play"
+          ></Button>
+          <Button
+            style={styles.button}
+            onPress={uploadRecording}
+            title="Save New Recording"
+          ></Button>
+          <Button style={styles.button} onPress={post} title="Post"></Button>
+        </View>
+      );
+    });
+  }
 
   const uploadRecording = async () => {
     const response = await fetch(uri);
@@ -216,9 +224,9 @@ export default function DesignedRecordScreen() {
             source={require("../../assets/backButton.png")}
           />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.post} onPress={post}>
+        {/* <TouchableOpacity style={styles.post} onPress={post}>
           <Text style={styles.btnText}>Post</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
       <View style={styles.cover}>
         <Image
@@ -234,11 +242,14 @@ export default function DesignedRecordScreen() {
       >
         <Image
           style={{ width: 125, height: 125 }}
-          source={recording
-            ? require("../../assets/recording.png")
-            : require("../../assets/notRecording.png")}
+          source={
+            recording
+              ? require("../../assets/recording.png")
+              : require("../../assets/notRecording.png")
+          }
         />
       </TouchableOpacity>
+      {getRecordingLines()}
     </View>
   );
 }
