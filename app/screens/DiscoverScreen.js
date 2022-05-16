@@ -16,7 +16,7 @@ export default function DiscoveryScreen2() {
   const navigation = useNavigation();
   const [originalAudio, setOriginalAudio] = React.useState();
   const [originalAudioUrl, setOriginalAudioUrl] = React.useState();
-  const [isPlaying, setIsPlaying] = useState([false]);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     store // Gets file from firebase

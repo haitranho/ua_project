@@ -191,7 +191,7 @@ export default function DesignedRecordScreen({route}) {
           <Button
             style={styles.button}
             onPress={uploadRecording}
-            title="Save New Recording"
+            title="Save"
           ></Button>
           <Button style={styles.button} onPress={post} title="Post"></Button>
         </View>
@@ -284,26 +284,46 @@ const styles = StyleSheet.create({
     width: 175,
     height: 175,
     backgroundColor: "#E6E6E6",
-    marginTop: 66,
-    marginLeft: 100,
+    marginTop: 30,
+    marginLeft: 110,
     justifyContent: "center",
     padding: 35,
   },
   songName: {
     color: "#121212",
     marginTop: 15,
-    marginLeft: 151,
+    marginLeft: 161,
   },
   add: {
     width: 80,
     height: 80,
-    marginTop: 38,
-    marginLeft: 148,
+    marginTop: 20,
+    marginLeft: 158,
   },
   recordButton: {
     width: 125,
     height: 125,
-    marginTop: 51,
-    marginLeft: 125,
+    marginTop: 20,
+    marginLeft: 135,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 20,
+    marginHorizontal: 10
+  },
+  fill: {
+    flex: 1,
+    marginTop: 5,
+    marginHorizontal: 10,
+    color: "#DEE1E9",
+    backgroundColor: "#25262C",
+    padding: 10,
+  },
+  button: {
+    margin: 10,
+    backgroundColor: "#25262C",
+    padding: 10,
   },
 });
