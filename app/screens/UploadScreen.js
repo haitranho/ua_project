@@ -69,7 +69,9 @@ const UploadScreen = ({ route }) => {
       .set(songData)
       .then(() => {
         console.log("collection added!");
-        navigation.navigate("Record2");
+        navigation.navigate("Record2", {
+          songUrl: songData.url.toString(),
+        });
       });
   };
 
