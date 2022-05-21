@@ -9,56 +9,109 @@ import {
 } from "react-native";
 import Svg, { Ellipse } from "react-native-svg";
 import { useNavigation } from "@react-navigation/core";
-import { store } from "../../firebase";
+import { store, db } from "../../firebase";
 import { Audio } from "expo-av";
 
 export default function DiscoveryScreen2() {
   const navigation = useNavigation();
-  const [originalAudio, setOriginalAudio] = React.useState();
-  const [originalAudioUrl, setOriginalAudioUrl] = React.useState();
+  const [currentSong, setCurrentSong] = React.useState();
   const [isPlaying, setIsPlaying] = useState(false);
+  const songs = db.collection('audio');
+  const songArray = [];
+  const [currentSongIndex, setCurrentSongIndex] = React.useState(0);
 
-  useEffect(() => {
-    store // Gets file from firebase
-      .ref("instrumental.wav")
-      .getDownloadURL()
-      .then(async function (url) {
-        console.log(url);
-        setOriginalAudioUrl(url); // save the Url for other functions
-        const original = new Audio.Sound();
-        try {
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            allowsRecordingIOS: true,
-          }); // Sets up phone to play properly
-          const load_status = await original.loadAsync({ uri: url }, {}, false); // Downloads url taken from firebase
-          setOriginalAudio(original); // Using the useState function to set the originalAudio state
-          console.log("Loading Status: ", load_status);
-          // await originalAudio.playAsync();
-        } catch (error) {
-          console.log(error);
-        }
-      });
-  }, [setOriginalAudio]);
+  // useEffect(() => {
+  //   const songCollection = await songs.get();
+  //   songCollection.forEach(doc => {
+  //     songArray.push(doc.data());
+  //   });
+  //   console.log(songArray[1]);
+  //   store // Gets file from firebase
+  //     .ref("instrumental.wav")
+  //     .getDownloadURL()
+  //     .then(async function (url) {
+  //       console.log(url);
+  //       setOriginalAudioUrl(url); // save the Url for other functions
+  //       const original = new Audio.Sound();
+  //       try {
+  //         await Audio.setAudioModeAsync({
+  //           playsInSilentModeIOS: true,
+  //           allowsRecordingIOS: true,
+  //         }); // Sets up phone to play properly
+  //         const load_status = await original.loadAsync({ uri: url }, {}, false); // Downloads url taken from firebase
+  //         setOriginalAudio(original); // Using the useState function to set the originalAudio state
+  //         console.log("Loading Status: ", load_status);
+  //         // const songarray = await songs.get();
+  //         // songarray.forEach(doc => {
+  //         //   songArray.push(doc.data());
+  //         // });
+  //         // console.log(songArray[0]);
+  //         // await originalAudio.playAsync();
+  //       } catch (error) {
+  //         console.log(error);
+  //       }
+  //     });
+  // }, [setOriginalAudio]);
+
+  useEffect(async () => {
+    try {
+      const current = new Audio.Sound();
+      await Audio.setAudioModeAsync({
+        playsInSilentModeIOS: true,
+        allowsRecordingIOS: true,
+      }); // Sets up phone to play properly
+      if (songArray.length == 0) {
+        const songCollection = await songs.get();
+        songCollection.forEach(doc => {
+          songArray.push(doc.data());
+        });
+      }
+      const load_status = await current.loadAsync({ uri: songArray[currentSongIndex].url }, {}, false); // Downloads url taken from firebase
+      setCurrentSong(current); // Using the useState function to set the originalAudio state
+      console.log("Loading Status: ", load_status);
+      console.log("index: ", currentSongIndex);
+      console.log(songArray[currentSongIndex].title);
+    } catch (error) {
+      console.log(error);
+    }
+  }, [currentSongIndex]);
 
    function modify() {
     // const originalAudioRef = store.ref("audio/overlayed_audio.wav");
     // const overlayURL = await overlayRef.getDownloadURL();
     navigation.navigate("Record2", {
-      songUrl: originalAudioUrl.toString(),
+      songUrl: songArray[currentSongIndex].url,
+      songTitle: songArray[currentSongIndex].title,
+      songUser: songArray[currentSongIndex].userID,
     });
   }
 
   const playAudio = async () => {
-    const status = await originalAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
+    const status = await currentSong.playAsync(); // Play the originalAudio as soon as the user hits the record button
     setIsPlaying(true);
     console.log("Starting status: ", status);
   };
 
   const pauseAudio = async () => {
-    const status = await originalAudio.stopAsync(); // Play the originalAudio as soon as the user hits the record button
+    const status = await currentSong.stopAsync(); // Play the originalAudio as soon as the user hits the record button
     setIsPlaying(false);
     console.log("Starting status: ", status);
+  };
+
+  const nextAudio = async () => {
+    //if (currentSongIndex != songArray.length) {
+    setCurrentSongIndex(currentSongIndex + 1);
+    //} else {
+    //  console.log("no more songs")
+    //}
+  };
+
+  const prevAudio = async () => {
+    //if (currentSongIndex != songArray.length) {
+    setCurrentSongIndex(currentSongIndex - 1);
+    //} else {
+    //  console.log("no more songs")
+    //}
   };
 
   // const handleAudioPlayPause = async () => {
@@ -81,10 +134,12 @@ export default function DiscoveryScreen2() {
   return (
     <View style={styles.container}>
       <View style={styles.rectRow}>
-        <Image
-          style={styles.skipBack}
-          source={require("../../assets/skip_back.png")}
-        />
+        <TouchableOpacity onPress={prevAudio}>
+          <Image
+            style={styles.skipBack}
+            source={require("../../assets/skip_back.png")}
+          />
+        </TouchableOpacity>
         <TouchableOpacity onPress={modify}>
           <Image
             style={styles.modify}
@@ -105,10 +160,12 @@ export default function DiscoveryScreen2() {
           style={styles.share}
           source={require("../../assets/share.png")}
         />
-        <Image
-          style={styles.skipForward}
-          source={require("../../assets/skip_forward.png")}
-        />
+        <TouchableOpacity onPress={nextAudio}>
+          <Image
+            style={styles.skipForward}
+            source={require("../../assets/skip_forward.png")}
+          />
+        </TouchableOpacity>
       </View>
       <View style={styles.rect5}></View>
       <Svg viewBox="0 0 50 50" style={styles.ellipse}>
@@ -210,6 +267,7 @@ export default function DiscoveryScreen2() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
   skipBack: {
     width: 65,

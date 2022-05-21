@@ -20,7 +20,7 @@ export default function DesignedRecordScreen({route}) {
   const [uri, setURI] = useState(""); // Sets the URI of the audio recording
   const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
-  const {songUrl} = route.params; // Meta data for song upload
+  const {songUrl} = route.params.songUrl; // Meta data for song upload
 
   const navigation = useNavigation();
 
@@ -257,6 +257,7 @@ export default function DesignedRecordScreen({route}) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "white",
   },
   back: {
     width: 50,
