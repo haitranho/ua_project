@@ -12,14 +12,14 @@ import { useNavigation } from "@react-navigation/core";
 import { store, db } from "../../firebase";
 import { Audio } from "expo-av";
 
-export default function DiscoveryScreen2() {
+export default function DiscoveryScreen2({ route }) {
   const navigation = useNavigation();
   const [currentSong, setCurrentSong] = React.useState();
   const [isPlaying, setIsPlaying] = useState(false);
   const songs = db.collection('audio');
   const songArray = [];
   const [currentSongIndex, setCurrentSongIndex] = React.useState(0);
-
+  // const { songUrl, title } = route.params;
   // useEffect(() => {
   //   const songCollection = await songs.get();
   //   songCollection.forEach(doc => {
@@ -79,12 +79,37 @@ export default function DiscoveryScreen2() {
    function modify() {
     // const originalAudioRef = store.ref("audio/overlayed_audio.wav");
     // const overlayURL = await overlayRef.getDownloadURL();
-    navigation.navigate("Record2", {
+    // navigation.navigate("Record2");
+    navigation.navigate('Record2', {
       songUrl: songArray[currentSongIndex].url,
-      songTitle: songArray[currentSongIndex].title,
+      title: songArray[currentSongIndex].title,
       songUser: songArray[currentSongIndex].userID,
     });
+    // navigation.navigate('Record2', {
+    //   screen: 'DiscoverScreen',
+    //   params: {
+    //     songUrl: songArray[currentSongIndex].url,
+    //     title: songArray[currentSongIndex].title,
+    //     // songUser: songArray[currentSongIndex].userID,
+    //   },
+    // });
   }
+
+  // const modify = async () => {
+  //   try {
+  //     navigation.navigate('Record2', {
+  //       screen: 'DiscoverScreen',
+  //       params: {
+  //         songUrl: songArray[currentSongIndex].url,
+  //         title: songArray[currentSongIndex].title,
+  //         // songUser: songArray[currentSongIndex].userID,
+  //       },
+  //     });
+  //     console.log(navigation);
+  //   } catch (err) {
+  //     console.log(err);
+  //   }
+  // };
 
   const playAudio = async () => {
     const status = await currentSong.playAsync(); // Play the originalAudio as soon as the user hits the record button
