@@ -20,7 +20,7 @@ const UploadScreen = ({ route }) => {
   const [songName, setSongName] = useState("");
   const navigation = useNavigation();
   const [modiefiedAudio, setModifiedAudio] = React.useState(); // original audio sound object
-  const { url, userID } = route.params; // Meta data for song upload
+  const { url, userID, dateCreated } = route.params; // Meta data for song upload
 
   /* *
    * Loads the originalAudio as soon as the component renders
@@ -61,6 +61,7 @@ const UploadScreen = ({ route }) => {
       userID: userID,
       url: url,
       title: songName,
+      dateCreated: dateCreated,
     };
 
     // Upload the meta data to the audio collection in Firebase DB

@@ -13,14 +13,18 @@ import { Audio } from "expo-av";
 import { store, auth } from "../../firebase";
 import axios from "axios";
 
-export default function DesignedRecordScreen({route}) {
+export default function DesignedRecordScreen({ route }) {
   const [recording, setRecording] = React.useState(); // Holds current recording
   const [recordings, setRecordings] = React.useState([]); // Holds past recordings
   const [message, setMessage] = React.useState(""); // Error message
   const [uri, setURI] = useState(""); // Sets the URI of the audio recording
   const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
-  const {songUrl} = route.params.songUrl; // Meta data for song upload
+  const { songUrl } = route.params.songUrl; // Meta data for song upload
+  // const [isNewContent] = route.params.isNewContent;
+  const [isNewContent, setIsNewContent] = useState(true);
+  const [postUrl, setPostUrl] = useState("");
+  const [newPostPath, setNewPostPath] = useState();
 
   const navigation = useNavigation();
 
@@ -36,14 +40,25 @@ export default function DesignedRecordScreen({route}) {
     const recordingURL = await voiceRef.getDownloadURL();
     console.log("instrumental.wav URL: ", instrumentalURL);
     console.log("recording.wav URL: ", recordingURL);
-    await overlayBothURLs(instrumentalURL.toString(), recordingURL.toString());
 
-    const overlayRef = store.ref("audio/overlayed_audio.wav");
-    const overlayURL = await overlayRef.getDownloadURL();
+    var postUrl;
+
+    if (isNewContent) {
+      const postRef = store.ref(newPostPath);
+      postUrl = await postRef.getDownloadURL();
+    } else {
+      await overlayBothURLs(
+        instrumentalURL.toString(),
+        recordingURL.toString()
+      );
+      const postRef = store.ref("audio/overlayed_audio.wav");
+      postUrl = await postRef.getDownloadURL();
+    }
 
     navigation.navigate("Upload", {
-      url: overlayURL.toString(),
+      url: postUrl,
       userID: auth.currentUser.uid,
+      dateCreated: newPostPath
     });
   }
 
@@ -125,9 +140,11 @@ export default function DesignedRecordScreen({route}) {
             linearPCMIsFloat: false,
           },
         });
-        const status = await originalAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
-        console.log("Starting status: ", status);
-        recording.setOnRecordingStatusUpdate();
+        if (isNewContent == false) {
+          const status = await originalAudio.playAsync(); // Play the originalAudio as soon as the user hits the record button
+          console.log("Starting status: ", status);
+          recording.setOnRecordingStatusUpdate();
+        }
         await recording.startAsync();
         setRecording(recording);
       } else {
@@ -141,8 +158,11 @@ export default function DesignedRecordScreen({route}) {
 
   // Stop recording function
   async function stopRecording() {
-    const stopStatus = await originalAudio.stopAsync(); // First, stop the audio of the instrumental from playing
-    console.log("Stopping status: ", stopStatus);
+    if (!isNewContent) {
+      const stopStatus = await originalAudio.stopAsync(); // First, stop the audio of the instrumental from playing
+      console.log("Stopping status: ", stopStatus);
+    }
+
     setRecording(undefined);
     // Stops the recording and from memory
     await recording.stopAndUnloadAsync();
@@ -202,11 +222,19 @@ export default function DesignedRecordScreen({route}) {
   const uploadRecording = async () => {
     const response = await fetch(uri);
     const blob = await response.blob();
+    var songName;
+
+    if (isNewContent) {
+      songName = Date();
+      setNewPostPath(songName);
+    } else {
+      songName = "recording.wav";
+    }
 
     /* Save the audio recording into Storage and using the recording's uri */
     store
       .ref()
-      .child("recording.wav")
+      .child(songName)
       .put(blob)
       .then(() => {
         console.log("Succesfully saved");
@@ -312,7 +340,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     marginTop: 20,
-    marginHorizontal: 10
+    marginHorizontal: 10,
   },
   fill: {
     flex: 1,
