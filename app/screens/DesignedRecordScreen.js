@@ -20,7 +20,7 @@ export default function DesignedRecordScreen({route}) {
   const [uri, setURI] = useState(""); // Sets the URI of the audio recording
   const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
-  const {songUrl} = route.params.songUrl; // Meta data for song upload
+  const { songUrl, songTitle } = route.params; // Meta data for song upload
 
   const navigation = useNavigation();
 
@@ -30,7 +30,7 @@ export default function DesignedRecordScreen({route}) {
   };
 
   async function post() {
-    const instrumentalRef = store.ref("instrumental.wav");
+    const instrumentalRef = songUrl;
     const voiceRef = store.ref("recording.wav");
     const instrumentalURL = await instrumentalRef.getDownloadURL();
     const recordingURL = await voiceRef.getDownloadURL();
@@ -41,9 +41,8 @@ export default function DesignedRecordScreen({route}) {
     const overlayRef = store.ref("audio/overlayed_audio.wav");
     const overlayURL = await overlayRef.getDownloadURL();
 
-    navigation.navigate("Upload", {
-      url: overlayURL.toString(),
-      userID: auth.currentUser.uid,
+    navigation.navigate("Post", {
+      url: overlayURL.toString()
     });
   }
 
@@ -54,26 +53,21 @@ export default function DesignedRecordScreen({route}) {
    * original audio is loaded from Firebase. Even with the useEffect, its not quite as instant
    * as the RecordScreen loading
    */
-  useEffect(() => {
-    store // Gets file from firebase
-      .ref("instrumental.wav")
-      .getDownloadURL()
-      .then(async function (url) {
-        console.log(url);
-        const original = new Audio.Sound();
-        try {
-          await Audio.setAudioModeAsync({
-            playsInSilentModeIOS: true,
-            allowsRecordingIOS: true,
-          }); // Sets up phone to play properly
-          const load_status = await original.loadAsync({ uri: url }, {}, false); // Downloads url taken from firebase
-          setOriginalAudio(original); // Using the useState function to set the originalAudio state
-          console.log("Loading Status: ", load_status);
-          // await originalAudio.playAsync();
-        } catch (error) {
-          console.log(error);
-        }
-      });
+  useEffect( async () => {
+      console.log(songUrl);
+      const original = new Audio.Sound();
+      try {
+        await Audio.setAudioModeAsync({
+          playsInSilentModeIOS: true,
+          allowsRecordingIOS: true,
+        }); // Sets up phone to play properly
+        const load_status = await original.loadAsync({ uri: songUrl }, {}, false); // Downloads url taken from firebase
+        setOriginalAudio(original); // Using the useState function to set the originalAudio state
+        console.log("Loading Status: ", load_status);
+        // await originalAudio.playAsync();
+      } catch (error) {
+        console.log(error);
+      }
   }, [setOriginalAudio]);
 
   // Recording stuff
@@ -234,7 +228,7 @@ export default function DesignedRecordScreen({route}) {
           source={require("../../assets/musicNote.png")}
         />
       </View>
-      <Text style={styles.songName}>Song Name</Text>
+      <Text style={styles.songName}>{songTitle}</Text>
       <Image style={styles.add} source={require("../../assets/combine.png")} />
       <TouchableOpacity
         style={styles.recordButton}

@@ -20,7 +20,7 @@ const UploadScreen = ({ route }) => {
   const [songName, setSongName] = useState("");
   const navigation = useNavigation();
   const [modiefiedAudio, setModifiedAudio] = React.useState(); // original audio sound object
-  const { url, userID } = route.params; // Meta data for song upload
+  const { url } = route.params.url; // Meta data for song upload
 
   /* *
    * Loads the originalAudio as soon as the component renders
