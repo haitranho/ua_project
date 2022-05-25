@@ -83,6 +83,7 @@ export default function DiscoveryScreen2() {
       songUrl: songArray[currentSongIndex].url,
       songTitle: songArray[currentSongIndex].title,
       songUser: songArray[currentSongIndex].userID,
+      // isNewContent: false,
     });
   }
 

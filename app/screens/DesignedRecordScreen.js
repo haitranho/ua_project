@@ -25,7 +25,6 @@ export default function DesignedRecordScreen({ route }) {
   const [isNewContent, setIsNewContent] = useState(true);
   const [postUrl, setPostUrl] = useState("");
   const [newPostPath, setNewPostPath] = useState();
-
   const navigation = useNavigation();
 
   // Navigation stuff
