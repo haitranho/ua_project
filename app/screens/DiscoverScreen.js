@@ -84,6 +84,7 @@ export default function DiscoveryScreen2({ route }) {
       songUrl: songArray[currentSongIndex].url,
       title: songArray[currentSongIndex].title,
       songUser: songArray[currentSongIndex].userID,
+      // isNewContent: false,
     });
     // navigation.navigate('Record2', {
     //   screen: 'DiscoverScreen',
