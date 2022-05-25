@@ -22,15 +22,23 @@ export default function DesignedRecordScreen({ route }) {
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
   const { songUrl } = route.params.songUrl; // Meta data for song upload
   // const [isNewContent] = route.params.isNewContent;
-  const [isNewContent, setIsNewContent] = useState(true);
-  const [postUrl, setPostUrl] = useState("");
-  const [newPostPath, setNewPostPath] = useState();
+  const [isNewContent, setIsNewContent] = useState(false);
+  const [newPostPath, setNewPostPath] = useState("");
+  const [overlayPath, setOverlayPath] = useState("");
+  const [overlayUrl, setOverlayUrl] = useState("");
   const navigation = useNavigation();
 
   // Navigation stuff
   const back = () => {
     navigation.navigate("Discover");
   };
+
+  /**
+   * Post either new audio content or modified audio meta data to Firebase storage
+   * and Firebase DB. If isNewContent is true, only meta data is sent as the recordoing is
+   * saved in uploadRecording. Otherwise, overlayed_audio.wav is fetched and saved as a new file
+   * as the data as the name.
+   *  */
 
   async function post() {
     const instrumentalRef = store.ref("instrumental.wav");
@@ -41,23 +49,49 @@ export default function DesignedRecordScreen({ route }) {
     console.log("recording.wav URL: ", recordingURL);
 
     var postUrl;
+    var date;
 
+    // Post the meta data for new content, else overlay recording over pre-existing audio from Discover page
     if (isNewContent) {
       const postRef = store.ref(newPostPath);
       postUrl = await postRef.getDownloadURL();
+      date = newPostPath;
     } else {
       await overlayBothURLs(
         instrumentalURL.toString(),
         recordingURL.toString()
       );
+
+      // Cheesy way of saving the overlayed audio and then reuploading it with a new name
+      // Basically download the "overlayed_audio" as a blob and then save it with a date name
       const postRef = store.ref("audio/overlayed_audio.wav");
       postUrl = await postRef.getDownloadURL();
+      setOverlayUrl(postUrl);
+
+      const response = await fetch(postUrl);
+      const blob = await response.blob();
+
+      // Save the overlayed audio as the date
+      date = Date();
+      const overlayName = date;
+      setOverlayPath(overlayName);
+
+      store
+        .ref()
+        .child(overlayPath)
+        .put(blob)
+        .then(() => {
+          console.log("Succesfully saved");
+          // Navigate out to another window later
+        })
+        .catch((e) => console.log("uploading overlay audio error =>", e));
     }
 
+    // After all that shit send the meta data to the upload screen so it can upload it as a document
     navigation.navigate("Upload", {
       url: postUrl,
       userID: auth.currentUser.uid,
-      dateCreated: newPostPath
+      dateCreated: date,
     });
   }
 
@@ -99,7 +133,8 @@ export default function DesignedRecordScreen({ route }) {
       })
       .then(() => {
         console.log("Overlayed both audio");
-      });
+      })
+      .catch((e) => console.log("uploading overlay audio error =>", e));
   };
 
   // Start recording function
