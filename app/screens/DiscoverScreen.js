@@ -13,14 +13,14 @@ import { store, db } from "../../firebase";
 import { Audio } from "expo-av";
 import '../../global.js'
 
-export default function DiscoveryScreen2({ route }) {
+export default function DiscoveryScreen2() {
   const navigation = useNavigation();
-  const [currentSong, setCurrentSong] = React.useState();
+  const [currentSong, setCurrentSong] = React.useState(new Audio.Sound());
   const [isPlaying, setIsPlaying] = React.useState(false);
   const songs = db.collection('audio');
   const [songArray, setSongArray] = React.useState([]);
   const [currentSongIndex, setCurrentSongIndex] = React.useState(0);
-  // const { songUrl, title } = route.params;
+
   // useEffect(() => {
   //   const songCollection = await songs.get();
   //   songCollection.forEach(doc => {
@@ -88,45 +88,20 @@ export default function DiscoveryScreen2({ route }) {
   function modify() {
     // const originalAudioRef = store.ref("audio/overlayed_audio.wav");
     // const overlayURL = await overlayRef.getDownloadURL();
-<<<<<<< HEAD
-    // navigation.navigate("Record2");
-    navigation.navigate('Record2', {
-      songUrl: songArray[currentSongIndex].url,
-      title: songArray[currentSongIndex].title,
-      songUser: songArray[currentSongIndex].userID,
-=======
-    navigation.navigate("Record2", {
-      songUrl: globalSongArray[currentSongIndex].url,
-      songTitle: globalSongArray[currentSongIndex].title,
-      songUser: globalSongArray[currentSongIndex].userID,
->>>>>>> 5f0199713c52d399e5d71f7e583082babd71576f
-      // isNewContent: false,
-    });
-    // navigation.navigate('Record2', {
-    //   screen: 'DiscoverScreen',
-    //   params: {
-    //     songUrl: songArray[currentSongIndex].url,
-    //     title: songArray[currentSongIndex].title,
-    //     // songUser: songArray[currentSongIndex].userID,
-    //   },
-    // });
+    try {
+      if (globalSongArray[currentSongIndex].url !== '')
+      {
+        navigation.navigate("Record2", {
+          songUrl: globalSongArray[currentSongIndex].url,
+          songTitle: globalSongArray[currentSongIndex].title,
+          songUser: globalSongArray[currentSongIndex].userID,
+          // isNewContent: false,
+        });
+      }
+    } catch (err) {
+      console.log("no more song", err);
+    }
   }
-
-  // const modify = async () => {
-  //   try {
-  //     navigation.navigate('Record2', {
-  //       screen: 'DiscoverScreen',
-  //       params: {
-  //         songUrl: songArray[currentSongIndex].url,
-  //         title: songArray[currentSongIndex].title,
-  //         // songUser: songArray[currentSongIndex].userID,
-  //       },
-  //     });
-  //     console.log(navigation);
-  //   } catch (err) {
-  //     console.log(err);
-  //   }
-  // };
 
   const playAudio = async () => {
     const status = await currentSong.playAsync(); // Play the originalAudio as soon as the user hits the record button
@@ -141,19 +116,21 @@ export default function DiscoveryScreen2({ route }) {
   };
 
   const nextAudio = async () => {
-    //if (currentSongIndex != songArray.length) {
-    setCurrentSongIndex(currentSongIndex + 1);
-    //} else {
-    //  console.log("no more songs")
-    //}
+    if (currentSongIndex != songArray.length) {
+      setCurrentSongIndex(currentSongIndex + 1);
+    } else {
+      console.log(currentSongIndex);
+      console.log("len: ", songArray.length);
+      console.log("no more songs");
+    }
   };
 
   const prevAudio = async () => {
-    //if (currentSongIndex != songArray.length) {
-    setCurrentSongIndex(currentSongIndex - 1);
-    //} else {
-    //  console.log("no more songs")
-    //}
+    if (currentSongIndex != songArray.length) {
+      setCurrentSongIndex(currentSongIndex - 1);
+    } else {
+     console.log("no more songs")
+    }
   };
 
   // const handleAudioPlayPause = async () => {
