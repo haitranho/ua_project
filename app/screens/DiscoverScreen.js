@@ -11,13 +11,14 @@ import Svg, { Ellipse } from "react-native-svg";
 import { useNavigation } from "@react-navigation/core";
 import { store, db } from "../../firebase";
 import { Audio } from "expo-av";
+import '../../global.js'
 
 export default function DiscoveryScreen2({ route }) {
   const navigation = useNavigation();
   const [currentSong, setCurrentSong] = React.useState();
-  const [isPlaying, setIsPlaying] = useState(false);
+  const [isPlaying, setIsPlaying] = React.useState(false);
   const songs = db.collection('audio');
-  const songArray = [];
+  const [songArray, setSongArray] = React.useState([]);
   const [currentSongIndex, setCurrentSongIndex] = React.useState(0);
   // const { songUrl, title } = route.params;
   // useEffect(() => {
@@ -60,30 +61,45 @@ export default function DiscoveryScreen2({ route }) {
         playsInSilentModeIOS: true,
         allowsRecordingIOS: true,
       }); // Sets up phone to play properly
-      if (songArray.length == 0) {
+      //arr = [];
+      if (globalSongArray.length == 0) {
         const songCollection = await songs.get();
-        songCollection.forEach(doc => {
-          songArray.push(doc.data());
-        });
+        if (songCollection.empty) {
+          console.log("No Data");
+        } else {
+          songCollection.forEach(doc => {
+            globalSongArray.push(doc.data());
+            //setSongArray(songArray => [...songArray, doc.data()]);
+          });
+        }
       }
-      const load_status = await current.loadAsync({ uri: songArray[currentSongIndex].url }, {}, false); // Downloads url taken from firebase
+      //setSongArray({arr});
+      //console.log(arr)
+      console.log(globalSongArray);
+      const load_status = await current.loadAsync({ uri: globalSongArray[currentSongIndex].url }, {}, false); // Downloads url taken from firebase
       setCurrentSong(current); // Using the useState function to set the originalAudio state
       console.log("Loading Status: ", load_status);
       console.log("index: ", currentSongIndex);
-      console.log(songArray[currentSongIndex].title);
     } catch (error) {
       console.log(error);
     }
   }, [currentSongIndex]);
 
-   function modify() {
+  function modify() {
     // const originalAudioRef = store.ref("audio/overlayed_audio.wav");
     // const overlayURL = await overlayRef.getDownloadURL();
+<<<<<<< HEAD
     // navigation.navigate("Record2");
     navigation.navigate('Record2', {
       songUrl: songArray[currentSongIndex].url,
       title: songArray[currentSongIndex].title,
       songUser: songArray[currentSongIndex].userID,
+=======
+    navigation.navigate("Record2", {
+      songUrl: globalSongArray[currentSongIndex].url,
+      songTitle: globalSongArray[currentSongIndex].title,
+      songUser: globalSongArray[currentSongIndex].userID,
+>>>>>>> 5f0199713c52d399e5d71f7e583082babd71576f
       // isNewContent: false,
     });
     // navigation.navigate('Record2', {
