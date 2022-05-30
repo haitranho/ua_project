@@ -24,7 +24,7 @@ export default function DesignedRecordScreen({ route }) {
   // const [isNewContent] = route.params.isNewContent;
   const [isNewContent, setIsNewContent] = useState(false);
   const [newPostPath, setNewPostPath] = useState("");
-  const [overlayPath, setOverlayPath] = useState("");
+  const [overlayPath, setOverlayPath] = useState("/audio");
   const [overlayUrl, setOverlayUrl] = useState("");
   const navigation = useNavigation();
 
@@ -65,6 +65,7 @@ export default function DesignedRecordScreen({ route }) {
       // Cheesy way of saving the overlayed audio and then reuploading it with a new name
       // Basically download the "overlayed_audio" as a blob and then save it with a date name
       const postRef = store.ref("audio/overlayed_audio.wav");
+      // const postRef = store.ref("overlayed_audio.wav");
       postUrl = await postRef.getDownloadURL();
       setOverlayUrl(postUrl);
 
@@ -81,7 +82,7 @@ export default function DesignedRecordScreen({ route }) {
         .child(overlayPath)
         .put(blob)
         .then(() => {
-          console.log("Succesfully saved");
+          console.log("Overlay Audio Succesfully saved");
           // Navigate out to another window later
         })
         .catch((e) => console.log("uploading overlay audio error =>", e));
@@ -271,7 +272,7 @@ export default function DesignedRecordScreen({ route }) {
       .child(songName)
       .put(blob)
       .then(() => {
-        console.log("Succesfully saved");
+        console.log("Recording Succesfully saved");
         // Navigate out to another window later
       })
       .catch((e) => console.log("uploading image error =>", e));

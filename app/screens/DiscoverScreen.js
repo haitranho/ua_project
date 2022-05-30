@@ -102,6 +102,7 @@ export default function DiscoveryScreen2() {
       console.log("no more song", err);
     }
   }
+  console.log("outside songArray length", songArray.length);
 
   const playAudio = async () => {
     const status = await currentSong.playAsync(); // Play the originalAudio as soon as the user hits the record button
