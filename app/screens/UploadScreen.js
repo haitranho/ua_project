@@ -17,6 +17,7 @@ import { Audio } from "expo-av";
 
 const UploadScreen = ({ route }) => {
   // States
+  const [genre, setGenre] = useState("");
   const [songName, setSongName] = useState("");
   const navigation = useNavigation();
   const [modiefiedAudio, setModifiedAudio] = React.useState(); // original audio sound object
@@ -60,6 +61,7 @@ const UploadScreen = ({ route }) => {
     const songData = {
       userID: userID,
       url: url,
+      genre: genre,
       title: songName,
       dateCreated: dateCreated,
     };
@@ -92,12 +94,16 @@ const UploadScreen = ({ route }) => {
         value={songName}
         onChangeText={setSongName}
       />
+      <TextInput
+        style={styles.input}
+        label="genre"
+        placeholder="Genre"
+        value={genre}
+        onChangeText={setGenre}
+      />
       {/* Button View */}
       <View style={styles.btnContainer}>
-        <TouchableOpacity style={styles.userBtn} onPress={postRecording}>
-          <Text style={styles.btnText}>Post</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.userBtn} onPress={discard}>
+        <TouchableOpacity style={styles.backBtn} onPress={discard}>
           {/* Doesn't do anything right now */}
           {/* Need to implement the sign up page for this button to work */}
           <Text style={styles.btnText}>Discard</Text>
@@ -105,7 +111,10 @@ const UploadScreen = ({ route }) => {
         <TouchableOpacity style={styles.userBtn} onPress={playModified}>
           {/* Doesn't do anything right now */}
           {/* Need to implement the sign up page for this button to work */}
-          <Text style={styles.btnText}>Play modified audio</Text>
+          <Text style={styles.btnText}>Play</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.userBtn} onPress={postRecording}>
+          <Text style={styles.btnText}>Post</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -135,12 +144,18 @@ const styles = StyleSheet.create({
   btnContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "95%",
+    width: "92%",
   },
   userBtn: {
     backgroundColor: "#409e39",
     padding: 15,
-    width: "45%",
+    width: "30%",
+    borderRadius: 10,
+  },
+  backBtn: {
+    backgroundColor: "grey",
+    padding: 15,
+    width: "30%",
     borderRadius: 10,
   },
   btnText: {

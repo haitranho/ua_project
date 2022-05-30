@@ -117,20 +117,18 @@ export default function DiscoveryScreen2() {
   };
 
   const nextAudio = async () => {
-    if (currentSongIndex != songArray.length) {
-      setCurrentSongIndex(currentSongIndex + 1);
+    if (currentSongIndex == globalSongArray.length - 1) {
+      setCurrentSongIndex(0);
     } else {
-      console.log(currentSongIndex);
-      console.log("len: ", songArray.length);
-      console.log("no more songs");
+      setCurrentSongIndex(currentSongIndex + 1);
     }
   };
 
   const prevAudio = async () => {
-    if (currentSongIndex != songArray.length) {
-      setCurrentSongIndex(currentSongIndex - 1);
+    if (currentSongIndex == 0) {
+      setCurrentSongIndex(globalSongArray.length - 1);
     } else {
-     console.log("no more songs")
+      setCurrentSongIndex(currentSongIndex - 1);
     }
   };
 
