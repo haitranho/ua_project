@@ -109,19 +109,19 @@ export default function DiscoveryScreen2() {
   };
 
   const nextAudio = async () => {
-    //if (currentSongIndex != songArray.length) {
-    setCurrentSongIndex(currentSongIndex + 1);
-    //} else {
-    //  console.log("no more songs")
-    //}
+    if (currentSongIndex == songArray.length - 1) {
+      setCurrentSongIndex(0);
+    } else {
+      setCurrentSongIndex(currentSongIndex + 1);
+    }
   };
 
   const prevAudio = async () => {
-    //if (currentSongIndex != songArray.length) {
-    setCurrentSongIndex(currentSongIndex - 1);
-    //} else {
-    //  console.log("no more songs")
-    //}
+    if (currentSongIndex == 0) {
+      setCurrentSongIndex(globalSongArray.length - 1);
+    } else {
+      setCurrentSongIndex(currentSongIndex - 1);
+    }
   };
 
   // const handleAudioPlayPause = async () => {

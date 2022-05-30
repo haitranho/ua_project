@@ -18,6 +18,7 @@ import { Audio } from "expo-av";
 const UploadScreen = ({ route }) => {
   // States
   const [songName, setSongName] = useState("");
+  const [genre, setGenre] = useState("");
   const navigation = useNavigation();
   const [modiefiedAudio, setModifiedAudio] = React.useState(); // original audio sound object
   const { url, userID, dateCreated } = route.params; // Meta data for song upload
@@ -58,9 +59,10 @@ const UploadScreen = ({ route }) => {
   const postRecording = () => {
     // Create meta data and upload it here
     const songData = {
-      userID: userID,
+      username: auth.currentUser.displayName,
       url: url,
       title: songName,
+      genre: genre,
       dateCreated: dateCreated,
     };
 
@@ -70,9 +72,7 @@ const UploadScreen = ({ route }) => {
       .set(songData)
       .then(() => {
         console.log("collection added!");
-        navigation.navigate("Record2", {
-          songUrl: songData.url.toString(),
-        });
+        navigation.navigate("Discover");
       });
   };
 
@@ -92,12 +92,16 @@ const UploadScreen = ({ route }) => {
         value={songName}
         onChangeText={setSongName}
       />
+      <TextInput
+        style={styles.input}
+        label="genre"
+        placeholder="Genre"
+        value={genre}
+        onChangeText={setGenre}
+      />
       {/* Button View */}
       <View style={styles.btnContainer}>
-        <TouchableOpacity style={styles.userBtn} onPress={postRecording}>
-          <Text style={styles.btnText}>Post</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.userBtn} onPress={discard}>
+        <TouchableOpacity style={styles.backBtn} onPress={discard}>
           {/* Doesn't do anything right now */}
           {/* Need to implement the sign up page for this button to work */}
           <Text style={styles.btnText}>Discard</Text>
@@ -105,7 +109,10 @@ const UploadScreen = ({ route }) => {
         <TouchableOpacity style={styles.userBtn} onPress={playModified}>
           {/* Doesn't do anything right now */}
           {/* Need to implement the sign up page for this button to work */}
-          <Text style={styles.btnText}>Play modified audio</Text>
+          <Text style={styles.btnText}>Play</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.userBtn} onPress={postRecording}>
+          <Text style={styles.btnText}>Post</Text>
         </TouchableOpacity>
       </View>
     </SafeAreaView>
@@ -135,12 +142,18 @@ const styles = StyleSheet.create({
   btnContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    width: "95%",
+    width: "92%",
   },
   userBtn: {
     backgroundColor: "#409e39",
     padding: 15,
-    width: "45%",
+    width: "30%",
+    borderRadius: 10,
+  },
+  backBtn: {
+    backgroundColor: "grey",
+    padding: 15,
+    width: "30%",
     borderRadius: 10,
   },
   btnText: {

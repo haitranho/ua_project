@@ -1,10 +1,13 @@
-from flask import Flask
+from flask import Flask, Response
 from flask_restful import Resource, reqparse
 import os
 import requests
 from pyrebase import pyrebase
+from datetime import datetime
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Firebase Configurations
 firebaseConfig = {
@@ -34,6 +37,9 @@ audio_put_args.add_argument(
 audio_put_args.add_argument(
     "audioURL2", type=str, help="URL 2 of the audio is required", required=True)
 
+@app.before_request
+def before():
+    print("Request recieved.")
 
 @app.after_request
 def set_headers(response):
@@ -47,15 +53,18 @@ def set_headers(response):
 
 @app.route('/audio', methods=['PUT'])
 def put():
+    print("PUT STARTED")
+    fileName = datetime.now().strftime("%m/%d/%Y, %H:%M:%S")
     args = audio_put_args.parse_args()
     r1 = requests.get(args["audioURL1"], allow_redirects=True)
     r2 = requests.get(args["audioURL2"], allow_redirects=True)
     open('the_instrumental.wav', 'wb').write(r1.content)
     open('the_voiceover.wav', 'wb').write(r2.content)
-    os.system("ffmpeg -i the_instrumental.wav -i the_voiceover.wav -filter_complex amerge=inputs=2 -ac 2 overlayed_audio.wav -y")
+    os.system("ffmpeg -i the_instrumental.wav -i the_voiceover.wav -filter_complex amix=inputs=2:duration=longest overlayed_audio.wav -y")
+    # os.system("ffmpeg -i the_instrumental.wav -i the_voiceover.wav -filter_complex amerge=inputs=2 -ac 2 overlayed_audio.wav -y")
     # Store overlayed_audio.wav into firebase
-    storage.child(path_on_cloud).put("overlayed_audio.wav")
-    return {"Overlayed Audio": "Success"}, 200
+    storage.child("/audio/" + fileName).put("overlayed_audio.wav")
+    return Response(response=fileName, status=200)
 
 
 if __name__ == "__main__":

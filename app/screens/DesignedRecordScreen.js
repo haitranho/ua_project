@@ -20,7 +20,7 @@ export default function DesignedRecordScreen({ route }) {
   const [uri, setURI] = useState(""); // Sets the URI of the audio recording
   const [originalAudio, setOriginalAudio] = React.useState(); // original audio sound object
   const [originalURL, setOriginalURL] = React.useState(); // original audio url
-  const { songUrl } = route.params.songUrl; // Meta data for song upload
+  const { songUrl, songTitle, songUser } = route.params; // Meta data for song upload
   // const [isNewContent] = route.params.isNewContent;
   const [isNewContent, setIsNewContent] = useState(false);
   const [newPostPath, setNewPostPath] = useState("");
@@ -61,7 +61,6 @@ export default function DesignedRecordScreen({ route }) {
         instrumentalURL.toString(),
         recordingURL.toString()
       );
-
       // Cheesy way of saving the overlayed audio and then reuploading it with a new name
       // Basically download the "overlayed_audio" as a blob and then save it with a date name
       const postRef = store.ref("audio/overlayed_audio.wav");
@@ -77,8 +76,8 @@ export default function DesignedRecordScreen({ route }) {
       setOverlayPath(overlayName);
 
       store
-        .ref()
-        .child(overlayPath)
+        .ref(overlayPath)
+        /*.child(overlayPath)*/
         .put(blob)
         .then(() => {
           console.log("Succesfully saved");
@@ -131,8 +130,8 @@ export default function DesignedRecordScreen({ route }) {
         audioURL1: url1,
         audioURL2: url2,
       })
-      .then(() => {
-        console.log("Overlayed both audio");
+      .then((res) => {
+        console.log(res);
       })
       .catch((e) => console.log("uploading overlay audio error =>", e));
   };
@@ -274,7 +273,7 @@ export default function DesignedRecordScreen({ route }) {
         console.log("Succesfully saved");
         // Navigate out to another window later
       })
-      .catch((e) => console.log("uploading image error =>", e));
+      .catch((e) => console.log("uploading recording error =>", e));
   };
 
   return (
